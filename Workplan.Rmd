@@ -1,0 +1,45 @@
+---
+title: "Workplan za seminarsko pri predmetu Napredni R"
+author: "Anže Mramor in Nina Velkavrh"
+date: "2023-04-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## A Portfolio Optimization webapp - načrt dela
+
+### Define the scope and objectives - 1 day
+
+Determine the features and functionality you want to include in your webapp, such as user inputs for risk tolerance, investment horizon, and asset classes, as well as the optimization methods to be used (e.g., mean-variance optimization, Black-Litterman model, etc.).
+
+### Gather and preprocess data - 3 days
+
+Collect historical price data for the selected assets (e.g., stocks, bonds, ETFs) from sources like Yahoo Finance, Quandl, or Alpha Vantage. Clean and preprocess the data, including calculating returns and handling missing values.
+
+### Implement optimization algorithms - 3 days
+
+Develop the optimization algorithms and models needed for portfolio optimization, such as calculating expected returns, covariance matrices, and efficient frontiers. You can use R packages like 'PortfolioAnalytics' or 'quadprog' to help with these tasks.
+
+### Design the webapp UI - 2 days
+
+Design the user interface (UI) for your webapp using R Shiny, including input fields for user preferences, sliders for risk tolerance, and buttons for optimization. Organize the layout using Shiny UI functions like sidebarLayout, tabsetPanel, and fluidRow.
+
+### Visualize the results - 2 days
+Create interactive visualizations for the optimized portfolio using R packages like 'plotly', 'ggplot2', or 'highcharter'. Display the efficient frontier, asset allocation, and risk-return profile of the optimized portfolio.
+
+### Implement server-side logic - 1 day
+
+Develop server-side logic for your webapp using Shiny's server function. This includes reacting to user inputs, running the optimization algorithms, and updating visualizations in real-time.
+
+### Test and debug - last day
+
+Test your webapp thoroughly to ensure that all components are working correctly and efficiently. Debug any issues that arise during testing and make necessary adjustments.
+
+### Deploy the webapp - last day
+
+Deploy your R Shiny webapp to a web server using Shiny Server or a hosting service like shinyapps.io. Make sure to secure any necessary API keys and data access permissions.
+
+
