@@ -17,7 +17,7 @@ Determine the features and functionality you want to include in your webapp, suc
 
 ### Gather and preprocess data - 3 days
 
-Collect historical price data for the selected assets (e.g., stocks, bonds, ETFs) from sources like Yahoo Finance, Quandl, or Alpha Vantage. Clean and preprocess the data, including calculating returns and handling missing values.
+Collect historical price data for the selected assets (e.g., stocks, bonds, ETFs, crypto) from sources like Yahoo Finance, Quandl, or Alpha Vantage. Clean and preprocess the data, including calculating returns and handling missing values.
 
 ### Implement optimization algorithms - 3 days
 
