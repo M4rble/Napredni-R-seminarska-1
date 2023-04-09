@@ -15,12 +15,15 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                                                  h2("Optimisation model description"))
                              ),
                              navbarMenu("Financial instruments analysis",
-                                        tabPanel("Index funds", 
-                                                 h2("Index funds"), 
+                                        
+    ################################# Indices #############################################################                                    
+                                        
+                                        tabPanel("Indices", 
+                                                 h2("Indices"), 
                                                  
                                                  sidebarPanel(
                                                    
-                                                   selectInput("index", label = "Choose index fund:",
+                                                   selectInput("index", label = "Choose index:",
                                                                choices = c("S&P500",
                                                                            "NASDAQ",
                                                                            "DowJones Index",
@@ -88,12 +91,155 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                                                  ),
                                                  
                                                  
-                                                 plotOutput("plotIndex")), #tableOutput("tabela")),
+                                                 plotOutput("plotIndex")),
                                         
+    #############################Commodities######################################################                                    
                                         
-                                        tabPanel("ETFs", h2("ETFs")),
-                                        tabPanel("Commodities", h2("Commodities")),
-                                        tabPanel("Bonds", h2("Bonds")),
+                                        tabPanel("Commodities", h2("Commodities"),
+                                                 sidebarPanel(
+                                                   
+                                                   selectInput("commodities", label = "Choose commodity:",
+                                                               choices = c("crude oil",
+                                                                           "gold",
+                                                                           "silver",
+                                                                           "natural gas",
+                                                                           "wheat")),
+                                                   hr(),
+                                                   
+                                                   radioButtons("price_c", label = "Choose what price to show:",
+                                                                choices = c("Opening",
+                                                                            "Closing",
+                                                                            "Highest",
+                                                                            "Lowest"),
+                                                                inline = TRUE),
+                                                   
+                                                   radioButtons("frequency_c", label = "Choose frequency:",
+                                                                choices = c("daily",
+                                                                            "weekly",
+                                                                            "monthly",
+                                                                            "quarterly",
+                                                                            "yearly"),
+                                                                inline = TRUE),
+                                                   
+                                                   dateRangeInput("datum_c", label = "Choose date range:",
+                                                                  start = Sys.Date() - 365,
+                                                                  end = Sys.Date(),
+                                                                  format="dd-mm-yyyy",
+                                                                  max = Sys.Date()
+                                                   ),
+                                                   hr(),
+                                                   
+                                                   checkboxGroupInput("indikatorji_c", label = "Add indicator:",
+                                                                      choices = c("Moving average",
+                                                                                  "RSI",
+                                                                                  "MACD"),
+                                                                      inline = TRUE),
+                                                   conditionalPanel(
+                                                     condition = "input.indikatorji_c.indexOf('Moving average') > -1",
+                                                     radioButtons("ma_period_c", label = "Choose moving average period:",
+                                                                  choices = c("10 units",
+                                                                              "20 units",
+                                                                              "50 units",
+                                                                              "100 units",
+                                                                              "200 units"),
+                                                                  selected = "10 units",
+                                                                  inline = TRUE)
+                                                   ),
+                                                   
+                                                   
+                                                   conditionalPanel(
+                                                     condition = "input.indikatorji_c.indexOf('RSI') > -1",
+                                                     sliderInput("rsi_period_c", label = "Choose RSI period:",
+                                                                 min = 3, max = 21,
+                                                                 value = 14)
+                                                   ),
+                                                   
+                                                   conditionalPanel(
+                                                     condition = "input.indikatorji_c.indexOf('MACD') > -1",
+                                                     numericInput("nFast_c", label = "Input short-term MACD period:",
+                                                                  value = 12, min = 1, max = 18),
+                                                     numericInput("nSlow_c", label = "Input long-term MACD period:",
+                                                                  value = 26, min = 19, max = 52),
+                                                     numericInput("nSig_c", label = "Input period for moving average smoothing:",
+                                                                  value = 9, min = 1, max = 24)
+                                                   )
+                                                 ),
+                                                 
+                                                 
+                                                 plotOutput("plotCommodities")),
+    
+    ############################## Bonds ################################################################
+    
+                                        tabPanel("Bonds", h2("Bonds"),
+                                                 sidebarPanel(
+                                                   
+                                                   selectInput("bonds", label = "Choose bond:",
+                                                               choices = c("US 5-Year Treasury Bond Yield",
+                                                                           "US 10-Year Treasury Bond Yield",
+                                                                           "US 30-Year Treasury Bond Yield")),
+                                                   hr(),
+                                                   
+                                                   radioButtons("price_b", label = "Choose what price to show:",
+                                                                choices = c("Opening",
+                                                                            "Closing",
+                                                                            "Highest",
+                                                                            "Lowest"),
+                                                                inline = TRUE),
+                                                   
+                                                   radioButtons("frequency_b", label = "Choose frequency:",
+                                                                choices = c("daily",
+                                                                            "weekly",
+                                                                            "monthly",
+                                                                            "quarterly",
+                                                                            "yearly"),
+                                                                inline = TRUE),
+                                                   
+                                                   dateRangeInput("datum_b", label = "Choose date range:",
+                                                                  start = Sys.Date() - 365,
+                                                                  end = Sys.Date(),
+                                                                  format="dd-mm-yyyy",
+                                                                  max = Sys.Date()
+                                                   ),
+                                                   hr(),
+                                                   
+                                                   checkboxGroupInput("indikatorji_b", label = "Add indicator:",
+                                                                      choices = c("Moving average",
+                                                                                  "RSI",
+                                                                                  "MACD"),
+                                                                      inline = TRUE),
+                                                   conditionalPanel(
+                                                     condition = "input.indikatorji_b.indexOf('Moving average') > -1",
+                                                     radioButtons("ma_period_b", label = "Choose moving average period:",
+                                                                  choices = c("10 units",
+                                                                              "20 units",
+                                                                              "50 units",
+                                                                              "100 units",
+                                                                              "200 units"),
+                                                                  selected = "10 units",
+                                                                  inline = TRUE)
+                                                   ),
+                                                   
+                                                   
+                                                   conditionalPanel(
+                                                     condition = "input.indikatorji_b.indexOf('RSI') > -1",
+                                                     sliderInput("rsi_period_b", label = "Choose RSI period:",
+                                                                 min = 3, max = 21,
+                                                                 value = 14)
+                                                   ),
+                                                   
+                                                   conditionalPanel(
+                                                     condition = "input.indikatorji_b.indexOf('MACD') > -1",
+                                                     numericInput("nFast_b", label = "Input short-term MACD period:",
+                                                                  value = 12, min = 1, max = 18),
+                                                     numericInput("nSlow_b", label = "Input long-term MACD period:",
+                                                                  value = 26, min = 19, max = 52),
+                                                     numericInput("nSig_b", label = "Input period for moving average smoothing:",
+                                                                  value = 9, min = 1, max = 24)
+                                                   )
+                                                 ),
+                                                 
+                                                 
+                                                 plotOutput("plotBonds")),
                                         tabPanel("Cryptocurrencies", h2("Cryptocurrencies"))
                              ),
                              navbarMenu("Portfolio optimisation",
