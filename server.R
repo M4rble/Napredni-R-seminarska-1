@@ -5,6 +5,9 @@ library(tidyquant)
 library(ggplot2)
 library(dplyr)
 library(TTR)
+library(gridExtra)
+library(grid)
+library(ggpubr)
 
 ###############################################################################
 # uporabljene funkcije
@@ -34,63 +37,92 @@ get_period_data <- function(ticker, start_date, end_date, period) {
 function(input, output) {
   
         plot <- reactive({
+          
+        ticker <- switch(input$index,
+                         "S&P500" = "^GSPC",
+                         "NASDAQ" = "^IXIC",
+                         "DowJones Index"= "^DJI",
+                         "STOXX Europe 50 Index"= "^STOXX50E",
+                         "DAX" = "^GDAXI")
     
-        sp500_data <- switch(input$frequency,
-                             "daily" = sp500_data <- tq_get("^GSPC",
-                                                            from = input$datum[1],
-                                                            to = input$datum[2],
-                                                            get = "stock.prices"),
-                             "weekly" = get_period_data("^GSPC",
+        data <- na.omit(switch(input$frequency,
+                             "daily" = tq_get(ticker,
+                                              from = input$datum[1],
+                                              to = input$datum[2],
+                                              get = "stock.prices"),
+                             "weekly" = get_period_data(ticker,
                                                         input$datum[1],
                                                         input$datum[2],
                                                         "week"),
-                             "monthly" = get_period_data("^GSPC",
+                             "monthly" = get_period_data(ticker,
                                                          input$datum[1],
                                                          input$datum[2],
                                                          "month"),
-                             "quarterly" = get_period_data("^GSPC",
+                             "quarterly" = get_period_data(ticker,
                                                            input$datum[1],
                                                            input$datum[2],
                                                            "quarter"),
-                             "yearly" = get_period_data("^GSPC",
+                             "yearly" = get_period_data(ticker,
                                                         input$datum[1],
                                                         input$datum[2],
-                                                        "year"))
+                                                        "year")))
           
         price <- switch(input$price,
-                        "Opening" = sp500_data$open,
-                        "Closing" = sp500_data$close,
-                        "Highest" = sp500_data$high,
-                        "Lowest" = sp500_data$low)
+                        "Opening" = data$open,
+                        "Closing" = data$close,
+                        "Highest" = data$high,
+                        "Lowest" = data$low)
         
-        indeksi <- switch(input$index,
-                          "S&P500" = ggplot(sp500_data, aes(x=date)) + geom_line(aes(y=price)) +
-                            ggtitle(paste(input$price, "price of SP500 for", input$frequency ,"data from",
+        indeksi <-  ggplot(data, aes(x=date)) + geom_line(aes(y=price)) +
+                            ggtitle(paste(input$price, "price of", input$index, "for", input$frequency, "data from",
                                           format(input$datum[1], "%d-%m-%Y"), "to", 
                                           format(input$datum[2], "%d-%m-%Y"))) +
-                            theme_bw() + xlab("Date") +  
-                            scale_y_continuous(name = paste(input$price, "price"), 
-                                               sec.axis = sec_axis(~., name = "RSI")),
-                          "NASDAQ" = "ni še grafa",
-                          "DowJones Index"= "ni še grafa",
-                          "STOXX Europe 50 Index"= "ni še grafa",
-                          "DAX"= "ni še grafa")
+                            theme_bw() + xlab("Date") + ylab(paste(input$price, "price"))
         
-        if (!is.null(input$indikatorji) && input$indikatorji == "Moving average"){
-          indeksi <- indeksi + geom_line(aes(y=SMA(price, n=50)), col = "green")
+        if ("Moving average" %in% input$indikatorji) {
+          
+          ma_period <- switch(input$ma_period,
+                              "10 units" = 10,
+                              "20 units" = 20,
+                              "50 units" = 50,
+                              "100 units" = 100,
+                              "200 units" = 200)
+
+          ma <- SMA(price, n = ma_period)
+          indeksi <- indeksi + geom_line(aes(x = data$date, y = ma, color="ma_period")) +
+                               scale_color_manual(name = "Moving average", values = c(ma_period = "green"),
+                               labels = c(input$ma_period))
         }
-          return(indeksi)
         
         
-        if (!is.null(input$indikatorji) && input$indikatorji == "RSI"){
-          indeksi <- indeksi + geom_line(aes(y=RSI(price, n=14)), col = "red")
-          return(indeksi)
+        rsi_plot <- ggplot() + theme_void()
+        if ("RSI" %in% input$indikatorji) {
+          
+          rsi <- RSI(price, n = input$rsi_period)
+          rsi_data <- data.frame(date = data$date, rsi = rsi)
+          rsi_plot <- rsi_plot + geom_line(data=rsi_data, aes(x = date, y = rsi, color = "rsi_period")) +
+            theme_bw() + xlab("Date") + geom_hline(aes(yintercept=70)) + 
+            geom_hline(aes(yintercept=30)) + ylab("RSI") + 
+            scale_color_manual(name = "RSI", values = c(rsi_period = "red"),
+                               labels = c(input$rsi_period))
         }
-        #if (!is.null(input$indikatorji) && input$indikatorji == "MACD"){
-        #  macd = MACD(price)
-        #  indeksi <- indeksi + geom_line(aes(x=date, y=macd[,1]), col = "blue") + 
-        #    geom_line(aes(x=date, y=macd[,2]), col = "yellow")
-        #}
+        
+        macd_plot <- ggplot() + theme_void()
+        if ("MACD" %in% input$indikatorji) {
+          macd_df <- as.data.frame(MACD(price, nFast = input$nFast, nSlow = input$nSlow,
+                                        nSig = input$nSig, maType = "SMA"))
+          macd <- macd_df$macd
+          signal <- macd_df$signal
+          macd_data <- data.frame(date = data$date, macd = macd, signal = signal)
+          macd_plot <- macd_plot + geom_line(data=macd_data, aes(x = date, y = macd, color = "macd")) +
+            geom_line(data=macd_data, aes(x = date, y = signal, color="signal")) +
+            theme_bw() + xlab("Date") + ylab("MACD") + 
+            scale_color_manual(name = "MACD", values = c(macd = "blue", signal = "purple"),
+                               labels = c("MACD", "Signal"))
+        }
+        
+        indeksi <- grid.arrange(indeksi, rsi_plot, macd_plot, nrow = 3, heights = c(3,1,1))
+        return(indeksi)
         
         })
   
@@ -99,9 +131,11 @@ function(input, output) {
     
     plot()
 
-  })
+  }, width= 1100, height=800)
   
 }
+
+
   
   #output$tabela <- renderTable({
   #  price <- switch(input$price,

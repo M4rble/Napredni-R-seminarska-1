@@ -5,12 +5,43 @@ library(xts)
 library(dplyr)
 
 end_date <- Sys.Date()
-start_date <- end_date - 5*365
+start_date <- end_date - 20*365
 
 sp500_data <- tq_get("^GSPC",
                      from = start_date,
                      to = end_date,
                      get = "stock.prices")
+
+b <- tq_transmute(sp500_data,
+                  select     = sp500_data$high, 
+                  mutate_fun = to.period, 
+                  period     = "days")
+
+dax_data <- tq_get("^GDAXI",
+                     from = start_date,
+                     to = end_date,
+                     get = "stock.prices")
+summary(dax_data)
+
+###########################################################################
+
+get_period_data <- function(ticker, start_date, end_date, price, period) {
+  # Get historical daily price data
+  data <- tq_get(ticker,
+                 from = start_date,
+                 to = end_date,
+                 get = "stock.prices") %>% 
+    tq_transmute(select = price, 
+                 mutate_fun = to.period, 
+                 period = period)
+  return(data)
+}
+
+get_period_data("^GSPC",
+                start_date,
+                end_date,
+                "open",
+                "days")
 
 ##################################################################################
 
@@ -20,14 +51,6 @@ get_period_data <- function(ticker, start_date, end_date, period) {
                        from = start_date,
                        to = end_date,
                        get = "stock.prices")
-  
-  # Convert daily data to weekly
-  xts_daily <- xts(daily_data$adjusted, order.by = daily_data$date)
-  xts_period <- to.period(xts_daily, period, indexAt = "firstof")
-  colnames(xts_period) <- c("open", "high", "low", "close")
-  
-  # Convert the xts object back to a data frame
-  period_data <- data.frame(date = index(xts_period), coredata(xts_period))
   
   return(period_data)
 }

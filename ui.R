@@ -6,7 +6,7 @@ library(shinythemes)
 shinyUI(fluidPage(theme = shinytheme("united"),
                   
                   titlePanel("NV Investments"),
-                  navbarPage("NV Investments - people will envy you your investments",
+                  navbarPage("NV Investments - people will eNVy you your investments",
                              navbarMenu("Overview",
                                         tabPanel("How to use the app?", 
                                                  h2("How to use the app?")),
@@ -32,14 +32,16 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                                                               choices = c("Opening",
                                                                           "Closing",
                                                                           "Highest",
-                                                                          "Lowest")),
+                                                                          "Lowest"),
+                                                              inline = TRUE),
                                                  
                                                  radioButtons("frequency", label = "Choose frequency:",
                                                               choices = c("daily",
                                                                           "weekly",
                                                                           "monthly",
                                                                           "quarterly",
-                                                                          "yearly")),
+                                                                          "yearly"),
+                                                              inline = TRUE),
                                                  
                                                  dateRangeInput("datum", label = "Choose date range:",
                                                                 start = Sys.Date() - 365,
@@ -52,8 +54,39 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                                                  checkboxGroupInput("indikatorji", label = "Add indicator:",
                                                                     choices = c("Moving average",
                                                                                "RSI",
-                                                                               "MACD"))
+                                                                               "MACD"),
+                                                                    inline = TRUE),
+                                                 conditionalPanel(
+                                                   condition = "input.indikatorji.indexOf('Moving average') > -1",
+                                                   radioButtons("ma_period", label = "Choose moving average period:",
+                                                                choices = c("10 units",
+                                                                            "20 units",
+                                                                            "50 units",
+                                                                            "100 units",
+                                                                            "200 units"),
+                                                                selected = "10 units",
+                                                                inline = TRUE)
                                                  ),
+                                                 
+                                                 
+                                                 conditionalPanel(
+                                                   condition = "input.indikatorji.indexOf('RSI') > -1",
+                                                   sliderInput("rsi_period", label = "Choose RSI period:",
+                                                                min = 3, max = 21,
+                                                                value = 14)
+                                                 ),
+                                                 
+                                                 conditionalPanel(
+                                                   condition = "input.indikatorji.indexOf('MACD') > -1",
+                                                   numericInput("nFast", label = "Input short-term MACD period:",
+                                                                value = 12, min = 1, max = 18),
+                                                   numericInput("nSlow", label = "Input long-term MACD period:",
+                                                                value = 26, min = 19, max = 52),
+                                                   numericInput("nSig", label = "Input period for moving average smoothing:",
+                                                                value = 9, min = 1, max = 24)
+                                                 )
+                                                 ),
+                                                 
                                                  
                                                  plotOutput("plotIndex")), #tableOutput("tabela")),
                                         
