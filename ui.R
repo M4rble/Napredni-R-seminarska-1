@@ -90,8 +90,11 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                                                  )
                                                  ),
                                                  
-                                                 
-                                                 plotOutput("plotIndex")),
+                                                 mainPanel(
+                                                   plotOutput("plotIndex"))),
+                                                 #plotlyOutput("plotIndex1"),
+                                                 #plotlyOutput("plotIndex2"),
+                                                 #plotlyOutput("plotIndex3"))),
                                         
     #############################Commodities######################################################                                    
                                         
@@ -240,11 +243,112 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                                                  
                                                  
                                                  plotOutput("plotBonds")),
-                                        tabPanel("Cryptocurrencies", h2("Cryptocurrencies"))
-                             ),
-                             navbarMenu("Portfolio optimisation",
-                                        tabPanel("Mean-variance model", h2("Mean-variance model")),
-                                        tabPanel("Black-Litterman model", h2("Black-Litterman model"))
+    
+    ############################## Cryptocurrencies ################################################################
+                                          tabPanel("Cryptocurrencies", h2("Cryptocurrencies"),
+                                                 sidebarPanel(
+                                                   
+                                                   selectInput("cryptocurrencies", label = "Choose cryptocurrency:",
+                                                               choices = c("Bitcoin",
+                                                                           "Ethereum",
+                                                                           "XRP",
+                                                                           "Solana",
+                                                                           "Dogecoin")),
+                                                   hr(),
+                                                   
+                                                   radioButtons("price_crypto", label = "Choose what price to show:",
+                                                                choices = c("Opening",
+                                                                            "Closing",
+                                                                            "Highest",
+                                                                            "Lowest"),
+                                                                inline = TRUE),
+                                                   
+                                                   radioButtons("frequency_crypto", label = "Choose frequency:",
+                                                                choices = c("daily",
+                                                                            "weekly",
+                                                                            "monthly",
+                                                                            "quarterly",
+                                                                            "yearly"),
+                                                                inline = TRUE),
+                                                   
+                                                   dateRangeInput("datum_crypto", label = "Choose date range:",
+                                                                  start = Sys.Date() - 365,
+                                                                  end = Sys.Date(),
+                                                                  format="dd-mm-yyyy",
+                                                                  max = Sys.Date()
+                                                   ),
+                                                   hr(),
+                                                   
+                                                   checkboxGroupInput("indikatorji_crypto", label = "Add indicator:",
+                                                                      choices = c("Moving average",
+                                                                                  "RSI",
+                                                                                  "MACD"),
+                                                                      inline = TRUE),
+                                                   conditionalPanel(
+                                                     condition = "input.indikatorji_crypto.indexOf('Moving average') > -1",
+                                                     radioButtons("ma_period_crypto", label = "Choose moving average period:",
+                                                                  choices = c("10 units",
+                                                                              "20 units",
+                                                                              "50 units",
+                                                                              "100 units",
+                                                                              "200 units"),
+                                                                  selected = "10 units",
+                                                                  inline = TRUE)
+                                                   ),
+                                                   
+                                                   
+                                                   conditionalPanel(
+                                                     condition = "input.indikatorji_crypto.indexOf('RSI') > -1",
+                                                     sliderInput("rsi_period_crypto", label = "Choose RSI period:",
+                                                                 min = 3, max = 21,
+                                                                 value = 14)
+                                                   ),
+                                                   
+                                                   conditionalPanel(
+                                                     condition = "input.indikatorji_crypto.indexOf('MACD') > -1",
+                                                     numericInput("nFast_crypto", label = "Input short-term MACD period:",
+                                                                  value = 12, min = 1, max = 18),
+                                                     numericInput("nSlow_crypto", label = "Input long-term MACD period:",
+                                                                  value = 26, min = 19, max = 52),
+                                                     numericInput("nSig_crypto", label = "Input period for moving average smoothing:",
+                                                                  value = 9, min = 1, max = 24)
+                                                   )
+                                                 ),
+                                                 
+                                                 
+                                                 plotOutput("plotCryptocurrencies"))),
+                              navbarMenu("Portfolio optimisation",
+                                        tabPanel("Optimal portfolio", h2("Optimal portfolio"),
+                                                 sidebarPanel(
+                                                   checkboxGroupInput("assets", "Select Assets:", choices = c("S&P500",
+                                                                                                       "NASDAQ",
+                                                                                                       "DowJones Index",
+                                                                                                       "STOXX Europe 50 Index",
+                                                                                                       "DAX",
+                                                                                                       "crude oil",
+                                                                                                       "gold",
+                                                                                                       "silver",
+                                                                                                       "natural gas",
+                                                                                                       "wheat",
+                                                                                                       "US 10-Year Treasury Bond Yield",
+                                                                                                       "US 30-Year Treasury Bond Yield",
+                                                                                                       "US 5-Year Treasury Bond Yield",
+                                                                                                       "Bitcoin",
+                                                                                                       "Ethereum",
+                                                                                                       "XRP",
+                                                                                                       "Solana",
+                                                                                                       "Dogecoin")),
+                                                   actionButton("selectall", "Select All"),
+                                                   hr(),
+                                                   actionButton("calculate", "Calculate optimal weights", icon("refresh"))),
+                                                  mainPanel(
+                                                   plotlyOutput("optimal_weights1"),
+                                                   plotlyOutput("optimal_weights2"),
+                                                   plotlyOutput("optimal_weights3"))
+                                                 ),
+                                        tabPanel("Black-Litterman model", h2("Black-Litterman model"),
+                                                 numericInput("risk_tolerance", "Risk Tolerance:", value = 0.1, min = 0.01, max = 1, step = 0.01),
+                                                 numericInput("target_return", "Target Return (%):", value = 5, min = 0, max = 100, step = 1),)
                              )
       
 

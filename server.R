@@ -8,12 +8,15 @@ library(TTR)
 library(gridExtra)
 library(grid)
 library(ggpubr)
+library(plotly)
+library(tidyverse)
+library(timetk)
 
 ###############################################################################
 # uporabljene funkcije
 
 
-function(input, output) {
+function(input, output,session) {
 
   # iz dnevnih v različne podatke
   
@@ -53,7 +56,7 @@ function(input, output) {
                              "US 30-Year Treasury Bond Yield" = "^TYX",
                              "US 5-Year Treasury Bond Yield" = "^FVX",
                              "Bitcoin" = "BTC-USD",
-                             "Ethereum" = "ETH_USD",
+                             "Ethereum" = "ETH-USD",
                              "XRP" = "XRP-USD",
                              "Solana" = "SOL-USD",
                              "Dogecoin" = "DOGE-USD")
@@ -136,15 +139,33 @@ function(input, output) {
             
             indeksi <- grid.arrange(indeksi, rsi_plot, macd_plot, nrow = 3, heights = c(3,1,1))
             return(indeksi)
+            
+            #id1 <- ggplotly(indeksi)
+            
+            #return(list(id1,rsi_plot, macd_plot))
           }
           
-
-  
         output$plotIndex <- renderPlot({
           generate_plot(input$index, input$price, input$frequency, input$datum, 
                         input$indikatorji, input$ma_period, input$rsi_period, 
                         input$nFast, input$nSlow, input$nSig)
-        }, width = 1100, height = 800)
+          }, width = 1100, height = 800)
+  
+        #output$plotIndex1 <- renderPlotly({
+        #  generate_plot(input$index, input$price, input$frequency, input$datum, 
+        #                input$indikatorji, input$ma_period, input$rsi_period, 
+        #                input$nFast, input$nSlow, input$nSig)[[1]]
+        #})#, width = 1100, height = 800)
+        #output$plotIndex2 <- renderPlotly({
+        #  generate_plot(input$index, input$price, input$frequency, input$datum, 
+        #                input$indikatorji, input$ma_period, input$rsi_period, 
+        #                input$nFast, input$nSlow, input$nSig)[[2]]
+        #})#, width = 1100, height = 800)
+        #output$plotIndex3 <- renderPlotly({
+        #  generate_plot(input$index, input$price, input$frequency, input$datum, 
+        #                input$indikatorji, input$ma_period, input$rsi_period, 
+        #                input$nFast, input$nSlow, input$nSig)[[3]]
+        #})#, width = 1100, height = 800)
         
         
         output$plotCommodities <- renderPlot({
@@ -158,36 +179,246 @@ function(input, output) {
                         input$indikatorji_b, input$ma_period_b, input$rsi_period_b, 
                         input$nFast_b, input$nSlow_b, input$nSig_b)
         }, width = 1100, height = 800)
+        
+        output$plotCryptocurrencies <- renderPlot({
+          generate_plot(input$cryptocurrencies, input$price_crypto, input$frequency_crypto, input$datum_crypto, 
+                        input$indikatorji_crypto, input$ma_period_crypto, input$rsi_period_crypto, 
+                        input$nFast_crypto, input$nSlow_crypto, input$nSig_crypto)
+        }, width = 1100, height = 800)
+        
+        
+        
+        asset_list <- c("S&P500",
+                        "NASDAQ",
+                        "DowJones Index",
+                        "STOXX Europe 50 Index",
+                        "DAX",
+                        "crude oil",
+                        "gold",
+                        "silver",
+                        "natural gas",
+                        "wheat",
+                        "US 10-Year Treasury Bond Yield",
+                        "US 30-Year Treasury Bond Yield",
+                        "US 5-Year Treasury Bond Yield",
+                        "Bitcoin",
+                        "Ethereum",
+                        "XRP",
+                        "Solana",
+                        "Dogecoin")
+        
+        observe({
+          if(input$selectall == 0) return(NULL) 
+          else if (input$selectall%%2 == 0)
+          {
+            updateCheckboxGroupInput(session,"assets","Select Assets:",choices=asset_list)
+          }
+          else
+          {
+            updateCheckboxGroupInput(session,"assets","Select Assets:",choices=asset_list,selected=asset_list)
+          }
+        })
+        
+        optimal_weights <- function(assets){
+          asset_tickers <- c("S&P500" = "^GSPC",
+                             "NASDAQ" = "^IXIC",
+                             "DowJones Index"= "^DJI",
+                             "STOXX Europe 50 Index"= "^STOXX50E",
+                             "DAX" = "^GDAXI",
+                             "crude oil" = "CL=F",
+                             "gold" = "GC=F",
+                             "silver" = "SI=F",
+                             "natural gas" = "NG=F",
+                             "wheat" = "ZW=F",
+                             "US 10-Year Treasury Bond Yield" = "^TNX",
+                             "US 30-Year Treasury Bond Yield" = "^TYX",
+                             "US 5-Year Treasury Bond Yield" = "^FVX",
+                             "Bitcoin" = "BTC-USD",
+                             "Ethereum" = "ETH-USD",
+                             "XRP" = "XRP-USD",
+                             "Solana" = "SOL-USD",
+                             "Dogecoin" = "DOGE-USD")
+          
+          assets <- asset_tickers[match(assets, names(asset_tickers))]
+          end_date <- Sys.Date()
+          start_date <- end_date - 365 * 10 # Use 5 years of historical data
+          
+          # Get historical data for selected assets
+          prices <- tq_get(assets,
+                           from = start_date,
+                           to = end_date,
+                           get = "stock.prices") 
+          
+          colnames(prices)[1] <- "symbol"
+          
+          # Calculate daily returns
+          log_ret_tidy <- prices %>%
+            group_by(symbol) %>%
+            tq_transmute(select = adjusted,
+                         mutate_fun = periodReturn,
+                         period = 'daily',
+                         col_rename = 'returns',
+                         type = 'arithmetic')
+          
+          log_ret_tidy <- na.omit(log_ret_tidy)
+          
+          log_ret_xts <- log_ret_tidy %>%
+            spread(symbol, value = returns) %>%
+            tk_xts()
+          
+          mean_ret <- colMeans(log_ret_xts, na.rm=TRUE)
+          
+          cov_mat <- cov(na.omit(log_ret_xts)) * 252
+          
+          
+          # random weights - normalizirane na 1
+          wts <- runif(n = length(assets))
+          
+          wts <- wts/sum(wts)
+          
+          # letni donos
+          port_returns <- (sum(wts * mean_ret) + 1)^252 - 1
+          
+          # letno tveganje
+          port_risk <- sqrt(t(wts) %*% (cov_mat %*% wts))
+          
+          
+          # Since Risk free rate is 0% 
+          
+          sharpe_ratio <- port_returns/port_risk
+          
+          
+          num_port <- 10000
+          
+          # Creating a matrix to store the weights
+          
+          all_wts <- matrix(nrow = num_port,
+                            ncol = length(assets))
+          
+          # Creating an empty vector to store
+          # Portfolio returns
+          
+          port_returns <- vector('numeric', length = num_port)
+          
+          # Creating an empty vector to store
+          # Portfolio Standard deviation
+          
+          port_risk <- vector('numeric', length = num_port)
+          
+          # Creating an empty vector to store
+          # Portfolio Sharpe Ratio
+          
+          sharpe_ratio <- vector('numeric', length = num_port)
+          
+          
+          for (i in seq_along(port_returns)) {
+            
+            wts <- runif(length(assets))
+            wts <- wts/sum(wts)
+            
+            # Storing weight in the matrix
+            all_wts[i,] <- wts
+            
+            # Portfolio returns
+            
+            port_ret <- sum(wts * mean_ret)
+            port_ret <- ((port_ret + 1)^252) - 1
+            
+            # Storing Portfolio Returns values
+            port_returns[i] <- port_ret
+            
+            
+            # Creating and storing portfolio risk
+            port_sd <- sqrt(t(wts) %*% (cov_mat  %*% wts))
+            port_risk[i] <- port_sd
+            
+            # Creating and storing Portfolio Sharpe Ratios
+            # Assuming 0% Risk free rate
+            
+            sr <- port_ret/port_sd
+            sharpe_ratio[i] <- sr
+            
+          }
+          
+          # Storing the values in the table
+          portfolio_values <- tibble(Return = port_returns,
+                                     Risk = port_risk,
+                                     SharpeRatio = sharpe_ratio)
+          
+          
+          # Converting matrix to a tibble and changing column names
+          all_wts <- tk_tbl(all_wts)
+          
+          colnames(all_wts) <- colnames(log_ret_xts)
+          
+          # Combing all the values together
+          portfolio_values <- tk_tbl(cbind(all_wts, portfolio_values))
+          
+          v <- 1:(length(portfolio_values)-3)
+          
+          colnames(portfolio_values)[v] <- names(asset_tickers)[match(colnames(portfolio_values)[v], asset_tickers)]
+          
+          min_var <- portfolio_values[which.min(portfolio_values$Risk),]
+          max_sr <- portfolio_values[which.max(portfolio_values$SharpeRatio),]
+          
+          p1 <- min_var %>%
+            gather(colnames(min_var)[v], key = Asset,
+                   value = Weights) %>%
+            mutate(Asset = as.factor(Asset)) %>%
+            ggplot(aes(x = fct_reorder(Asset,Weights), y = Weights, fill = Asset)) +
+            geom_bar(stat = 'identity') +
+            theme_bw() + theme(axis.text = element_blank()) +
+            labs(x = 'Assets', y = 'Weights', title = "Minimum Variance Portfolio Weights") +
+            scale_y_continuous(labels = scales::percent) 
+          
+          p2 <- max_sr %>%
+            gather(colnames(min_var)[v], key = Asset,
+                   value = Weights) %>%
+            mutate(Asset = as.factor(Asset)) %>%
+            ggplot(aes(x = fct_reorder(Asset,Weights), y = Weights, fill = Asset)) +
+            geom_bar(stat = 'identity') +
+            theme_bw() + theme(axis.text = element_blank()) +
+            labs(x = 'Assets', y = 'Weights', title = "Tangency Portfolio Weights") +
+            scale_y_continuous(labels = scales::percent) 
+          
+          p3 <- portfolio_values %>%
+            ggplot(aes(x = Risk, y = Return, color = SharpeRatio)) +
+            geom_point() +
+            theme_classic() +
+            scale_y_continuous(labels = scales::percent) +
+            scale_x_continuous(labels = scales::percent) +
+            labs(x = 'Annualized Risk',
+                 y = 'Annualized Returns',
+                 title = "Portfolio Optimization & Efficient Frontier") +
+            geom_point(aes(x = Risk,
+                           y = Return), data = min_var, color = 'red') +
+            geom_point(aes(x = Risk,
+                           y = Return), data = max_sr, color = 'red')
+          
+          
+          fig1 <- ggplotly(p1)
+          fig2 <- ggplotly(p2)
+          fig3 <- ggplotly(p3)
+          #fig <- subplot(ggplotly(p1), ggplotly(p2), ggplotly(p3), nrows=3, margin = 0.1)
+          #annotations = list(
+          #  list(x=0.2, y=1, text = "Minimum Variance Portfolio Weights"),
+          #  list(x=0.2, y=0.66, text = "Tangency Portfolio Weights"),
+          #  list(x=0.2, y=0.33, text = "Portfolio Optimization & Efficient Frontier")
+          #)
+          #fig <- fig %>% layout(annotations = annotations)
+          return(list(fig1, fig2, fig3))
+            
+        } 
+        
+        plot_weights <- eventReactive(input$calculate, {
+          optimal_weights(input$assets)
+        })
+        
+        output$optimal_weights1 <- renderPlotly({plot_weights()[[1]]})
+        output$optimal_weights2 <- renderPlotly({plot_weights()[[2]]})
+        output$optimal_weights3 <- renderPlotly({plot_weights()[[3]]})
+        
+        
 }
 
-
-  
-  #output$tabela <- renderTable({
-  #  price <- switch(input$price,
-  #                  "Opening" = "open",
-  #                  "Closing" = "close",
-  #                  "Highest" = "high",
-  #                  "Lowest" ="low",
-  #  )
-  #  
-  #  sp500_data <- tq_get("^GSPC",
-  #                       from = input$datum[1],
-  #                       to = input$datum[2],
-  #                       get = "stock.prices",
-  #                       frequency = "daily")
-  #  
-  #  print(sp500_data)
-  #})
-  
-  #if (input$plotMean) {
-  #  abline(v = input$mean, col = "green")
-  #}
-  
-  #output$tableDensity <- renderTable({
-  #  x = seq(-4,4,0.1)
-  #  y = dnorm(x, mean = input$mean, sd = input$sd)
-  #  df = data.frame(x, y)
-  #  colnames(df) <- c("Values", "Probability density")
-  #  df
-  #})
   
