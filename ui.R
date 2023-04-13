@@ -2,6 +2,7 @@
 
 library(shiny)
 library(shinythemes)
+library(plotly)
 
 shinyUI(fluidPage(theme = shinytheme("united"),
                   
@@ -320,6 +321,12 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                               navbarMenu("Portfolio optimisation",
                                         tabPanel("Optimal portfolio", h2("Optimal portfolio"),
                                                  sidebarPanel(
+                                                   numericInput("num_port", 
+                                                                label = "Input the number of portfolios to be randomly generated:",
+                                                                value = 5000, min = 1000, max = 1000000, step = 1000),
+                                                   numericInput("rfr", label = "Input risk-free-rate (in %)",
+                                                                value = 0, min = 0, max = 10, step=0.01),
+                                                   hr(),
                                                    checkboxGroupInput("assets", "Select Assets:", choices = c("S&P500",
                                                                                                        "NASDAQ",
                                                                                                        "DowJones Index",
@@ -330,9 +337,9 @@ shinyUI(fluidPage(theme = shinytheme("united"),
                                                                                                        "silver",
                                                                                                        "natural gas",
                                                                                                        "wheat",
+                                                                                                       "US 5-Year Treasury Bond Yield",
                                                                                                        "US 10-Year Treasury Bond Yield",
                                                                                                        "US 30-Year Treasury Bond Yield",
-                                                                                                       "US 5-Year Treasury Bond Yield",
                                                                                                        "Bitcoin",
                                                                                                        "Ethereum",
                                                                                                        "XRP",

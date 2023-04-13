@@ -198,9 +198,9 @@ function(input, output,session) {
                         "silver",
                         "natural gas",
                         "wheat",
+                        "US 5-Year Treasury Bond Yield",
                         "US 10-Year Treasury Bond Yield",
                         "US 30-Year Treasury Bond Yield",
-                        "US 5-Year Treasury Bond Yield",
                         "Bitcoin",
                         "Ethereum",
                         "XRP",
@@ -219,7 +219,7 @@ function(input, output,session) {
           }
         })
         
-        optimal_weights <- function(assets){
+        optimal_weights <- function(assets, num_port, rfr){
           asset_tickers <- c("S&P500" = "^GSPC",
                              "NASDAQ" = "^IXIC",
                              "DowJones Index"= "^DJI",
@@ -241,9 +241,9 @@ function(input, output,session) {
           
           assets <- asset_tickers[match(assets, names(asset_tickers))]
           end_date <- Sys.Date()
-          start_date <- end_date - 365 * 10 # Use 5 years of historical data
+          start_date <- end_date - 365 * 20 # uporabimo 20 let zgodovinskih podatkov
           
-          # Get historical data for selected assets
+          # enako kot prej pridobimo podatke za željene instrumente
           prices <- tq_get(assets,
                            from = start_date,
                            to = end_date,
@@ -251,96 +251,58 @@ function(input, output,session) {
           
           colnames(prices)[1] <- "symbol"
           
-          # Calculate daily returns
+          # poračunamo dnevne zvezna (log) returne, odstranimi NA-je (vikendi, prazniki, ...)
           log_ret_tidy <- prices %>%
             group_by(symbol) %>%
             tq_transmute(select = adjusted,
                          mutate_fun = periodReturn,
                          period = 'daily',
                          col_rename = 'returns',
-                         type = 'arithmetic')
-          
-          log_ret_tidy <- na.omit(log_ret_tidy)
+                         type = 'log') %>% na.omit()
           
           log_ret_xts <- log_ret_tidy %>%
             spread(symbol, value = returns) %>%
             tk_xts()
           
+          # Izračunamo povprečen return in povprečno tveganje
           mean_ret <- colMeans(log_ret_xts, na.rm=TRUE)
-          
           cov_mat <- cov(na.omit(log_ret_xts)) * 252
           
-          
-          # random weights - normalizirane na 1
-          wts <- runif(n = length(assets))
-          
-          wts <- wts/sum(wts)
-          
-          # letni donos
-          port_returns <- (sum(wts * mean_ret) + 1)^252 - 1
-          
-          # letno tveganje
-          port_risk <- sqrt(t(wts) %*% (cov_mat %*% wts))
-          
-          
-          # Since Risk free rate is 0% 
-          
-          sharpe_ratio <- port_returns/port_risk
-          
-          
-          num_port <- 10000
-          
-          # Creating a matrix to store the weights
-          
+          # skonstruiramo num_port naključnih portfeljev
+          set.seed(42)
+          # matrika uteži
           all_wts <- matrix(nrow = num_port,
                             ncol = length(assets))
           
-          # Creating an empty vector to store
-          # Portfolio returns
-          
+          # vektorji returnov, tveganja in sharpe-ratiota
           port_returns <- vector('numeric', length = num_port)
-          
-          # Creating an empty vector to store
-          # Portfolio Standard deviation
-          
           port_risk <- vector('numeric', length = num_port)
-          
-          # Creating an empty vector to store
-          # Portfolio Sharpe Ratio
-          
           sharpe_ratio <- vector('numeric', length = num_port)
           
-          
+          # poračunamo vrednosti za vsak porfelj
           for (i in seq_along(port_returns)) {
             
+            # naključne uteži za vsak portfelj
             wts <- runif(length(assets))
             wts <- wts/sum(wts)
-            
-            # Storing weight in the matrix
             all_wts[i,] <- wts
             
-            # Portfolio returns
-            
+            # poračunamo letne donose
             port_ret <- sum(wts * mean_ret)
             port_ret <- ((port_ret + 1)^252) - 1
-            
-            # Storing Portfolio Returns values
             port_returns[i] <- port_ret
             
-            
-            # Creating and storing portfolio risk
+            # poračunamo tveganje
             port_sd <- sqrt(t(wts) %*% (cov_mat  %*% wts))
             port_risk[i] <- port_sd
             
-            # Creating and storing Portfolio Sharpe Ratios
-            # Assuming 0% Risk free rate
-            
-            sr <- port_ret/port_sd
+            # pri privzetku 0% RFR poračunamo Sharpe ratio
+            sr <- (port_ret-rfr/100)/port_sd
             sharpe_ratio[i] <- sr
             
           }
           
-          # Storing the values in the table
+          # shranimo rezultate
           portfolio_values <- tibble(Return = port_returns,
                                      Risk = port_risk,
                                      SharpeRatio = sharpe_ratio)
@@ -348,41 +310,44 @@ function(input, output,session) {
           
           # Converting matrix to a tibble and changing column names
           all_wts <- tk_tbl(all_wts)
-          
           colnames(all_wts) <- colnames(log_ret_xts)
+          colnames(all_wts) <- names(asset_tickers)[match(colnames(all_wts), asset_tickers)]
           
           # Combing all the values together
           portfolio_values <- tk_tbl(cbind(all_wts, portfolio_values))
+          v <- 1:length(all_wts)
           
-          v <- 1:(length(portfolio_values)-3)
-          
-          colnames(portfolio_values)[v] <- names(asset_tickers)[match(colnames(portfolio_values)[v], asset_tickers)]
-          
+          # poiščemo portfelj z najmanjšo varianco in najvišjim Sharpetom
           min_var <- portfolio_values[which.min(portfolio_values$Risk),]
           max_sr <- portfolio_values[which.max(portfolio_values$SharpeRatio),]
           
+          # narišemo grafe
+          # graf uteži z najmanjšo varianco
           p1 <- min_var %>%
             gather(colnames(min_var)[v], key = Asset,
                    value = Weights) %>%
             mutate(Asset = as.factor(Asset)) %>%
             ggplot(aes(x = fct_reorder(Asset,Weights), y = Weights, fill = Asset)) +
             geom_bar(stat = 'identity') +
-            theme_bw() + theme(axis.text = element_blank()) +
+            theme_bw() + theme(axis.text.x = element_blank()) +
             labs(x = 'Assets', y = 'Weights', title = "Minimum Variance Portfolio Weights") +
             scale_y_continuous(labels = scales::percent) 
           
+          # graf uteži z najvišjim Sharpe ratiom
           p2 <- max_sr %>%
             gather(colnames(min_var)[v], key = Asset,
                    value = Weights) %>%
             mutate(Asset = as.factor(Asset)) %>%
             ggplot(aes(x = fct_reorder(Asset,Weights), y = Weights, fill = Asset)) +
             geom_bar(stat = 'identity') +
-            theme_bw() + theme(axis.text = element_blank()) +
+            theme_bw() + theme(axis.text.x = element_blank()) +
             labs(x = 'Assets', y = 'Weights', title = "Tangency Portfolio Weights") +
             scale_y_continuous(labels = scales::percent) 
           
+          # graf vseh portfeljev glede na letni donos in letno tveganje
           p3 <- portfolio_values %>%
-            ggplot(aes(x = Risk, y = Return, color = SharpeRatio)) +
+            ggplot(aes(x = Risk, y = Return, color = SharpeRatio,
+                       text = paste("Sharpe Ratio: ", round(SharpeRatio, 4)))) +
             geom_point() +
             theme_classic() +
             scale_y_continuous(labels = scales::percent) +
@@ -390,28 +355,23 @@ function(input, output,session) {
             labs(x = 'Annualized Risk',
                  y = 'Annualized Returns',
                  title = "Portfolio Optimization & Efficient Frontier") +
-            geom_point(aes(x = Risk,
-                           y = Return), data = min_var, color = 'red') +
-            geom_point(aes(x = Risk,
-                           y = Return), data = max_sr, color = 'red')
+            geom_point(aes(x = Risk, y = Return), data = min_var, color = "red") +
+            geom_point(aes(x = Risk, y = Return), data = max_sr, color = "orange")
+          #+
+            #scale_color_manual(values = c(SharpeRatio_min = "red", SharpeRatio_max = "orange"))
           
           
-          fig1 <- ggplotly(p1)
-          fig2 <- ggplotly(p2)
-          fig3 <- ggplotly(p3)
-          #fig <- subplot(ggplotly(p1), ggplotly(p2), ggplotly(p3), nrows=3, margin = 0.1)
-          #annotations = list(
-          #  list(x=0.2, y=1, text = "Minimum Variance Portfolio Weights"),
-          #  list(x=0.2, y=0.66, text = "Tangency Portfolio Weights"),
-          #  list(x=0.2, y=0.33, text = "Portfolio Optimization & Efficient Frontier")
-          #)
-          #fig <- fig %>% layout(annotations = annotations)
+          fig1 <- ggplotly(p1, tooltip = c("Weights", "Asset"))
+          fig2 <- ggplotly(p2, tooltip = c("Weights", "Asset"))
+          fig3 <- ggplotly(p3, tooltip = c("Risk", "Return", "text"))
           return(list(fig1, fig2, fig3))
             
         } 
         
+        
+        
         plot_weights <- eventReactive(input$calculate, {
-          optimal_weights(input$assets)
+          optimal_weights(input$assets, input$num_port, input$rfr)
         })
         
         output$optimal_weights1 <- renderPlotly({plot_weights()[[1]]})

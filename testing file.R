@@ -125,7 +125,7 @@ asset_list <- c("S&P500",
 assets <- asset_tickers[match(asset_list, names(asset_tickers))]
 
 end_date <- Sys.Date()
-start_date <- end_date - 365 * 10 # Use 5 years of historical data
+start_date <- end_date - 365 * 20 # Use 20 years of historical data
 
 # Get historical data for selected assets
 prices <- tq_get(assets,
@@ -142,9 +142,9 @@ log_ret_tidy <- prices %>%
                mutate_fun = periodReturn,
                period = 'daily',
                col_rename = 'returns',
-               type = 'arithmetic')
+               type = 'log') %>% na.omit()
 
-log_ret_tidy <- na.omit(log_ret_tidy)
+sum(is.na(log_ret_tidy))
 
 log_ret_xts <- log_ret_tidy %>%
   spread(symbol, value = returns) %>%
@@ -155,8 +155,8 @@ print(round(mean_ret, 5))
 
 cov_mat <- cov(na.omit(log_ret_xts)) * 252
 
-
 # random weights - normalizirane na 1
+set.seed(42)
 wts <- runif(n = length(assets))
 print(wts)
 
@@ -169,6 +169,7 @@ sum(wts)
 
 # letni donos
 port_returns <- (sum(wts * mean_ret) + 1)^252 - 1
+print(port_returns)
 
 # letno tveganje
 port_risk <- sqrt(t(wts) %*% (cov_mat %*% wts))
@@ -244,11 +245,13 @@ portfolio_values <- tibble(Return = port_returns,
 all_wts <- tk_tbl(all_wts)
 
 colnames(all_wts) <- colnames(log_ret_xts)
+colnames(all_wts) <- names(asset_tickers)[match(colnames(all_wts), asset_tickers)]
 
 # Combing all the values together
 portfolio_values <- tk_tbl(cbind(all_wts, portfolio_values))
 
 v <- 1:(length(portfolio_values)-3)
+length(all_wts)
 
 colnames(portfolio_values)[v] <- names(asset_tickers)[match(colnames(portfolio_values)[v], asset_tickers)]
 
@@ -298,21 +301,167 @@ p <- portfolio_values %>%
 ggplotly(p)
 
 library(plotly)
+###############################################################################
+
+asset_tickers <- c("S&P500" = "^GSPC",
+                   "NASDAQ" = "^IXIC",
+                   "DowJones Index"= "^DJI",
+                   "STOXX Europe 50 Index"= "^STOXX50E",
+                   "DAX" = "^GDAXI",
+                   "crude oil" = "CL=F",
+                   "gold" = "GC=F",
+                   "silver" = "SI=F",
+                   "natural gas" = "NG=F",
+                   "wheat" = "ZW=F",
+                   "US 10-Year Treasury Bond Yield" = "^TNX",
+                   "US 30-Year Treasury Bond Yield" = "^TYX",
+                   "US 5-Year Treasury Bond Yield" = "^FVX",
+                   "Bitcoin" = "BTC-USD",
+                   "Ethereum" = "ETH-USD",
+                   "XRP" = "XRP-USD",
+                   "Solana" = "SOL-USD",
+                   "Dogecoin" = "DOGE-USD")
+
+assets <- c("S&P500",
+                "NASDAQ",
+                "DowJones Index",
+                "STOXX Europe 50 Index",
+                "DAX",
+                "crude oil",
+                "gold",
+                "silver",
+                "natural gas",
+                "wheat",
+                "US 10-Year Treasury Bond Yield",
+                "US 30-Year Treasury Bond Yield",
+                "US 5-Year Treasury Bond Yield",
+                "Bitcoin",
+                "Ethereum",
+                "XRP",
+                "Solana",
+                "Dogecoin")
+
+assets <- asset_tickers[match(assets, names(asset_tickers))]
+end_date <- Sys.Date()
+start_date <- end_date - 365 * 20 # uporabimo 20 let zgodovinskih podatkov
+
+# enako kot prej pridobimo podatke za željene instrumente
+prices <- tq_get(assets,
+                 from = start_date,
+                 to = end_date,
+                 get = "stock.prices") 
+
+colnames(prices)[1] <- "symbol"
+
+# poračunamo dnevne zvezna (log) returne, odstranimi NA-je (vikendi, prazniki, ...)
+log_ret_tidy <- prices %>%
+  group_by(symbol) %>%
+  tq_transmute(select = adjusted,
+               mutate_fun = periodReturn,
+               period = 'daily',
+               col_rename = 'returns',
+               type = 'log') %>% na.omit()
+
+log_ret_xts <- log_ret_tidy %>%
+  spread(symbol, value = returns) %>%
+  tk_xts()
+
+# Izračunamo povprečen return in povprečno tveganje
+mean_ret <- colMeans(log_ret_xts, na.rm=TRUE)
+cov_mat <- cov(na.omit(log_ret_xts)) * 252
+
+# skonstruiramo 10000 naključnih portfeljev
+num_port <- 10000
+# matrika uteži
+all_wts <- matrix(nrow = num_port,
+                  ncol = length(assets))
+
+# vektorji returnov, tveganja in sharpe-ratiota
+port_returns <- vector('numeric', length = num_port)
+port_risk <- vector('numeric', length = num_port)
+sharpe_ratio <- vector('numeric', length = num_port)
+
+# poračunamo vrednosti za vsak porfelj
+for (i in seq_along(port_returns)) {
+  
+  # naključne uteži za vsak portfelj
+  wts <- runif(length(assets))
+  wts <- wts/sum(wts)
+  all_wts[i,] <- wts
+  
+  # poračunamo letne donose
+  port_ret <- sum(wts * mean_ret)
+  port_ret <- ((port_ret + 1)^252) - 1
+  port_returns[i] <- port_ret
+  
+  # poračunamo tveganje
+  port_sd <- sqrt(t(wts) %*% (cov_mat  %*% wts))
+  port_risk[i] <- port_sd
+  
+  # pri privzetku 0% RFR poračunamo Sharpe ratio
+  sr <- port_ret/port_sd
+  sharpe_ratio[i] <- sr
+  
+}
+
+# shranimo rezultate
+portfolio_values <- tibble(Return = port_returns,
+                           Risk = port_risk,
+                           SharpeRatio = sharpe_ratio)
 
 
-#library(PortfolioAnalytics)
-#
-#data(edhec)
-#asset_returns <- edhec
-#
-## Get the column names of the returns data
-#asset_names <- colnames(asset_returns)
-#
-## Create a portfolio specification object using asset_names
-#port_spec <- portfolio.spec(assets = asset_names)
-#
-## Get the class of the portfolio specification object
-#class(port_spec)
-#
-#print(port_spec)
+# Converting matrix to a tibble and changing column names
+all_wts <- tk_tbl(all_wts)
+colnames(all_wts) <- colnames(log_ret_xts)
+colnames(all_wts) <- names(asset_tickers)[match(colnames(all_wts), asset_tickers)]
 
+# Combing all the values together
+portfolio_values <- tk_tbl(cbind(all_wts, portfolio_values))
+v <- 1:length(all_wts)
+
+# poiščemo portfelj z najmanjšo varianco in najvišjim Sharpetom
+min_var <- portfolio_values[which.min(portfolio_values$Risk),]
+max_sr <- portfolio_values[which.max(portfolio_values$SharpeRatio),]
+
+# narišemo grafe
+# graf uteži z najmanjšo varianco
+p1 <- min_var %>%
+  gather(colnames(min_var)[v], key = Asset,
+         value = Weights) %>%
+  mutate(Asset = as.factor(Asset)) %>%
+  ggplot(aes(x = fct_reorder(Asset,Weights), y = Weights, fill = Asset)) +
+  geom_bar(stat = 'identity') +
+  theme_bw() + theme(axis.text = element_blank()) +
+  labs(x = 'Assets', y = 'Weights', title = "Minimum Variance Portfolio Weights") +
+  scale_y_continuous(labels = scales::percent) 
+
+# graf uteži z najvišjim Sharpe ratiom
+p2 <- max_sr %>%
+  gather(colnames(min_var)[v], key = Asset,
+         value = Weights) %>%
+  mutate(Asset = as.factor(Asset)) %>%
+  ggplot(aes(x = fct_reorder(Asset,Weights), y = Weights, fill = Asset)) +
+  geom_bar(stat = 'identity') +
+  theme_bw() + theme(axis.text = element_blank()) +
+  labs(x = 'Assets', y = 'Weights', title = "Tangency Portfolio Weights") +
+  scale_y_continuous(labels = scales::percent) 
+
+# graf vseh portfeljev glede na letni donos in letno tveganje
+p3 <- portfolio_values %>%
+  ggplot(aes(x = Risk, y = Return, color = SharpeRatio)) +
+  geom_point() +
+  theme_classic() +
+  scale_y_continuous(labels = scales::percent) +
+  scale_x_continuous(labels = scales::percent) +
+  labs(x = 'Annualized Risk',
+       y = 'Annualized Returns',
+       title = "Portfolio Optimization & Efficient Frontier") +
+  geom_point(aes(x = Risk,
+                 y = Return), data = min_var, color = 'red') +
+  geom_point(aes(x = Risk,
+                 y = Return), data = max_sr, color = 'red')
+
+
+fig1 <- ggplotly(p1)
+fig2 <- ggplotly(p2)
+fig3 <- ggplotly(p3)
