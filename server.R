@@ -93,7 +93,21 @@ function(input, output,session) {
               ggtitle(paste(price_type, "price of", index, "for", frequency, "data from",
                             format(datum[1], "%d-%m-%Y"), "to", 
                             format(datum[2], "%d-%m-%Y"))) +
-              theme_bw() + xlab("Date") + ylab(paste(price_type, "price"))
+              xlab("Date") + ylab(paste(price_type, "price")) +
+              theme(
+                panel.background = element_rect(fill = "#E0FFFF",
+                                                colour = "#E0FFFF",
+                                                size = 0.5, linetype = "solid"),
+                
+                plot.background = element_rect(fill = "#E0FFFF",
+                                               colour = "#E0FFFF"),
+                panel.grid.major = element_line(color = "#A9A9A9"),
+                panel.grid.minor = element_line(color = "#A9A9A9"),
+                legend.background = element_rect(fill = "#E0FFFF",
+                                                 colour = "#E0FFFF"),
+                legend.key = element_rect(fill = "#E0FFFF",
+                                          colour = "#E0FFFF")
+                )
             
             if ("Moving average" %in% indikatorji) {
               
@@ -111,19 +125,43 @@ function(input, output,session) {
             }
             
             
-            rsi_plot <- ggplot() + theme_void()
+            rsi_plot <- ggplot() + theme(
+              panel.background = element_rect(fill = "#E0FFFF",
+                                              colour = "#E0FFFF",
+                                              size = 0.5, linetype = "solid"),
+              
+              plot.background = element_rect(fill = "#E0FFFF",
+                                              colour = "#E0FFFF"),
+              panel.grid.major = element_line(color = "#A9A9A9"),
+              panel.grid.minor = element_line(color = "#A9A9A9"),
+              legend.background = element_rect(fill = "#E0FFFF",
+                                               colour = "#E0FFFF"),
+              legend.key = element_rect(fill = "#E0FFFF",
+                                        colour = "#E0FFFF"))
             if ("RSI" %in% indikatorji) {
               
               rsi <- RSI(price, n = rsi_period)
               rsi_data <- data.frame(date = data$date, rsi = rsi)
               rsi_plot <- rsi_plot + geom_line(data=rsi_data, aes(x = date, y = rsi, color = "rsi_period")) +
-                theme_bw() + xlab("Date") + geom_hline(aes(yintercept=70)) + 
+                xlab("Date") + geom_hline(aes(yintercept=70)) + 
                 geom_hline(aes(yintercept=30)) + ylab("RSI") + 
                 scale_color_manual(name = "RSI", values = c(rsi_period = "red"),
                                    labels = c(rsi_period))
             }
             
-            macd_plot <- ggplot() + theme_void()
+            macd_plot <- ggplot() + theme(
+              panel.background = element_rect(fill = "#E0FFFF",
+                                              colour = "#E0FFFF",
+                                              size = 0.5, linetype = "solid"),
+              
+              plot.background = element_rect(fill = "#E0FFFF",
+                                             colour = "#E0FFFF"),
+              panel.grid.major = element_line(color = "#A9A9A9"),
+              panel.grid.minor = element_line(color = "#A9A9A9"),
+              legend.background = element_rect(fill = "#E0FFFF",
+                                               colour = "#E0FFFF"),
+              legend.key = element_rect(fill = "#E0FFFF",
+                                        colour = "#E0FFFF"))
             if ("MACD" %in% indikatorji) {
               macd_df <- as.data.frame(MACD(price, nFast = nFast, nSlow = nSlow,
                                             nSig = nSig, maType = "SMA"))
@@ -132,7 +170,7 @@ function(input, output,session) {
               macd_data <- data.frame(date = data$date, macd = macd, signal = signal)
               macd_plot <- macd_plot + geom_line(data=macd_data, aes(x = date, y = macd, color = "macd")) +
                 geom_line(data=macd_data, aes(x = date, y = signal, color="signal")) +
-                theme_bw() + xlab("Date") + ylab("MACD") + 
+                xlab("Date") + ylab("MACD") + 
                 scale_color_manual(name = "MACD", values = c(macd = "blue", signal = "purple"),
                                    labels = c("MACD", "Signal"))
             }
@@ -329,7 +367,19 @@ function(input, output,session) {
             mutate(Asset = as.factor(Asset)) %>%
             ggplot(aes(x = fct_reorder(Asset,Weights), y = Weights, fill = Asset)) +
             geom_bar(stat = 'identity') +
-            theme_bw() + theme(axis.text.x = element_blank()) +
+            theme(
+              panel.background = element_rect(fill = "#E0FFFF",
+                                              colour = "#E0FFFF",
+                                              size = 0.5, linetype = "solid"),
+              
+              plot.background = element_rect(fill = "#E0FFFF",
+                                             colour = "#E0FFFF"),
+              panel.grid.major = element_line(color = "#A9A9A9"),
+              panel.grid.minor = element_line(color = "#A9A9A9"),
+              legend.background = element_rect(fill = "#E0FFFF",
+                                               colour = "#E0FFFF"),
+              legend.key = element_rect(fill = "#E0FFFF",
+                                        colour = "#E0FFFF"), axis.text.x = element_blank()) +
             labs(x = 'Assets', y = 'Weights', title = "Minimum Variance Portfolio Weights") +
             scale_y_continuous(labels = scales::percent) 
           
@@ -340,7 +390,19 @@ function(input, output,session) {
             mutate(Asset = as.factor(Asset)) %>%
             ggplot(aes(x = fct_reorder(Asset,Weights), y = Weights, fill = Asset)) +
             geom_bar(stat = 'identity') +
-            theme_bw() + theme(axis.text.x = element_blank()) +
+            theme(
+              panel.background = element_rect(fill = "#E0FFFF",
+                                              colour = "#E0FFFF",
+                                              size = 0.5, linetype = "solid"),
+              
+              plot.background = element_rect(fill = "#E0FFFF",
+                                             colour = "#E0FFFF"),
+              panel.grid.major = element_line(color = "#A9A9A9"),
+              panel.grid.minor = element_line(color = "#A9A9A9"),
+              legend.background = element_rect(fill = "#E0FFFF",
+                                               colour = "#E0FFFF"),
+              legend.key = element_rect(fill = "#E0FFFF",
+                                        colour = "#E0FFFF"), axis.text.x = element_blank()) +
             labs(x = 'Assets', y = 'Weights', title = "Tangency Portfolio Weights") +
             scale_y_continuous(labels = scales::percent) 
           
@@ -349,7 +411,19 @@ function(input, output,session) {
             ggplot(aes(x = Risk, y = Return, color = SharpeRatio,
                        text = paste("Sharpe Ratio: ", round(SharpeRatio, 4)))) +
             geom_point() +
-            theme_classic() +
+             theme(
+              panel.background = element_rect(fill = "#E0FFFF",
+                                              colour = "#E0FFFF",
+                                              size = 0.5, linetype = "solid"),
+              
+              plot.background = element_rect(fill = "#E0FFFF",
+                                             colour = "#E0FFFF"),
+              panel.grid.major = element_line(color = "#A9A9A9"),
+              panel.grid.minor = element_line(color = "#A9A9A9"),
+              legend.background = element_rect(fill = "#E0FFFF",
+                                               colour = "#E0FFFF"),
+              legend.key = element_rect(fill = "#E0FFFF",
+                                        colour = "#E0FFFF")) +
             scale_y_continuous(labels = scales::percent) +
             scale_x_continuous(labels = scales::percent) +
             labs(x = 'Annualized Risk',

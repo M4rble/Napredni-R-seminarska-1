@@ -1,0 +1,29 @@
+/* Global Styles */
+body {
+  font-family: Arial, Helvetica, sans-serif;
+ background-image: url('slika1.jpg'); /* Replace 'image.jpg' with the URL or file path of your desired image */
+}
+
+/* Header Styles */
+.header h2 {
+  padding: 20px;
+  background-color:#A52A2A;
+  color: #F0FFFF;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 36px;
+  margin-top: 0;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  padding: 20px;
+  background-color:#FAF0E6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-default {
+    background-color: #FAF0E6;
+}
