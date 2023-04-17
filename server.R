@@ -11,6 +11,7 @@ library(ggpubr)
 library(plotly)
 library(tidyverse)
 library(timetk)
+library(shinyWidgets)
 
 ###############################################################################
 # uporabljene funkcije
@@ -118,6 +119,11 @@ function(input, output,session) {
                                   "100 units" = 100,
                                   "200 units" = 200)
               
+              validate(
+                need(nrow(data) > ma_period + 1,
+                     "Cannot compute. Choose a shorter period for calculation of Moving average, increase data frequency or expand the observed date range.")
+              )
+              
               ma <- SMA(price, n = ma_period)
               indeksi <- indeksi + geom_line(aes(x = date, y = ma, color="ma_period")) +
                 scale_color_manual(name = "Moving average", values = c(ma_period = "green"),
@@ -139,6 +145,12 @@ function(input, output,session) {
               legend.key = element_rect(fill = "#E0FFFF",
                                         colour = "#E0FFFF"))
             if ("RSI" %in% indikatorji) {
+              
+              validate(
+                need(nrow(data) > rsi_period + 1,
+                     "Cannot compute. Choose a shorter period for calculation of RSI, increase data frequency or expand the observed date range.")
+              )
+              
               
               rsi <- RSI(price, n = rsi_period)
               rsi_data <- data.frame(date = data$date, rsi = rsi)
@@ -163,6 +175,14 @@ function(input, output,session) {
               legend.key = element_rect(fill = "#E0FFFF",
                                         colour = "#E0FFFF"))
             if ("MACD" %in% indikatorji) {
+              validate(
+                need(nrow(data) > nFast + 1,
+                     "Cannot compute. Choose a shorter short-term period for calculation of MACD, increase data frequency or expand the observed date range."),
+                need(nrow(data) > nSlow + 1,
+                     "Cannot compute. Choose a shorter long-term period for calculation of MACD, increase data frequency or expand the observed date range."),
+                need(nrow(data) > nSig + 1,
+                     "Cannot compute. Choose a shorter smoothing period for calculation of MACD, increase data frequency or expand the observed date range.")
+              )
               macd_df <- as.data.frame(MACD(price, nFast = nFast, nSlow = nSlow,
                                             nSig = nSig, maType = "SMA"))
               macd <- macd_df$macd

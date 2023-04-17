@@ -27,3 +27,7 @@ body {
 .navbar-default {
     background-color: #FAF0E6;
 }
+
+.shiny-output-error{
+  color: red ;
+}

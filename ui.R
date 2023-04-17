@@ -10,81 +10,196 @@ shinyUI(fluidPage(#theme = shinytheme("flatly"),
                   
                   titlePanel("NV Investments"),
  
-                  navbarPage( "NV Investments - people will eNVy you your investments",
+                  navbarPage( "others will eNVy you your investments",
                               
                              navbarMenu("Overview", icon = icon("eye"),
                                         tabPanel("How to use the app?", 
                                                  h2("How to use the app?"),
                                                  mainPanel(fluidRow(
                                                    column(12,
-                                                          p("Aplikacija je namenjena tistim, ki jih zanima, kako bi lahko s pomočjo investicij v različna finančna sredstva ustvarili čim bolj optimalen portfelj."),
+                                                          p("Aplikacija je namenjena vsem, ki jih zanima, kako porazdeliti svoja
+                                                            denarna sredstva, da bi z investicijami v različna finančna sredstva ustvarili
+                                                            čim bolj optimalen portfelj."),
                                                           p("Aplikacija je sestavljena iz treh delov:"),
                                                           h3("1. Overview"),
-                                                          p("Prvi zavihek, imenovan 'Overview', nam omogoča vpogled v navodila za uporabo aplikacije, opis finančnih sredstev, ki jih lahko uporabite v portfelju, in opis metode za izračun optimalnih deležev posameznih sredstev v portfelju."),
+                                                          p("Prvi zavihek, imenovan 'Overview', nam omogoča vpogled v navodila za uporabo aplikacije,
+                                                            opis finančnih sredstev, ki jih lahko uporabite v portfelju in opis metode za izračun
+                                                            optimalnih deležev posameznih sredstev v portfelju."),
                                                           h3("2. Financial assets analysis"),
-                                                          p("Drugi zavihek, imenovan 'Financial assets analysis', je razdeljen na štiri podrazdelke: Indices, Commodities, Bonds, Cryptocurrencies. S klikom na posamezni podrazdelek pridobimo izris gibanja vrednosti posameznih finančnih sredstev. Pri tem lahko spreminjamo posamezno sredstvo, vrsto cene (Opening, Closing, Highest, Lowest), frekvenco nabora podatkov (Daily, Weekly, Monthly, Quarterly, Yearly) in želeno obdobje opazovanja. V kolikor želimo dodatne informacije, ki nam izboljšajo razumevanje podatkov, lahko izberemo sledeče indikatorje: Moving Average, RSI ali MACD. Ob izbiri posameznega indikatorja se nam odprejo možnosti za izračun njegovih vrednosti. Drugi razdelek je torej namenjen statistični analizi finančnih sredstev, ki jih lahko vključimo v svoj portfelj."),
+                                                          p("Drugi zavihek, imenovan 'Financial assets analysis', je razdeljen na štiri podrazdelke:
+                                                            Indices, Commodities, Bonds in Cryptocurrencies. S klikom na posamezni podrazdelek pridobimo
+                                                            izris gibanja vrednosti posameznih finančnih sredstev. Pri tem lahko spreminjamo posamezno
+                                                            sredstvo, vrsto cene (Opening, Closing, Highest, Lowest), frekvenco nabora podatkov
+                                                            (Daily, Weekly, Monthly, Quarterly, Yearly) in želeno obdobje opazovanja. Če želimo prikazati dodatne
+                                                            informacije, ki nam izboljšajo razumevanje podatkov, lahko izberemo sledeče indikatorje: 
+                                                            Moving Average, RSI ali MACD. Ob izbiri posameznega indikatorja se nam odprejo možnosti za
+                                                            izračun njegovih vrednosti. Drugi razdelek je torej namenjen statistični analizi finančnih
+                                                            sredstev, ki jih lahko vključimo v svoj portfelj."),
                                                           h3("3. Portfolio optimization"),
-                                                          p("Tretji razdelek – 'Portfolio optimization' pa je glavni del aplikacije NV Investments, ki posamezniku omogoča izračun optimalnih uteži za dva različna portfelja, enega z najmanjšim tveganjem in drugega z največjim Sharpejevim razmerjem. Uporabnik najprej izbere število naključno generiranih portfeljev in vnese netvegano obrestno mero. Nato izbere poljubna finančna sredstva, ki jih želi imeti v svojem portfelju. Aplikacijo omogoča tudi izbiro vseh sredstev hkrati s pritiskom na gumb Select All. Po izbiri željenih finančnih sredstev mora uporabnik pritisniti 'Calculate optimal weights', počakati nekaj trenutkov in aplikacija mu izriše tri grafe. Prvi graf predstavlja optimalne deleže izbranih sredstev v porfelju z najmanjšo varianco (tveganjem), drugi graf pa z največjim Sharpejevim razmerjem. Zadnji graf uporaniku prikaže vrednosti tveganja, donosov in Sharpovega razmerja za vse zgenerirane porfelje. Rdeča toča predstavlja portfelj z najmanjšo varianco, oranžna točka pa portfelj z največjim Sharpejevim razmerjem."))
+                                                          p("Tretji razdelek – 'Portfolio optimization' je glavni del aplikacije NV Investments, 
+                                                            ki posamezniku omogoča izračun optimalnih uteži za dva različna portfelja, enega z 
+                                                            najmanjšim tveganjem in drugega z največjim Sharpejevim razmerjem. Uporabnik najprej izbere 
+                                                            število naključno generiranih portfeljev in vnese netvegano obrestno mero. Nato izbere 
+                                                            poljubna finančna sredstva, v katera želi investirati. Aplikacija omogoča tudi 
+                                                            izbiro vseh sredstev hkrati s pritiskom na gumb Select All. Po izbiri željenih finančnih 
+                                                            sredstev mora uporabnik pritisniti 'Calculate optimal weights', počakati nekaj trenutkov, da mu
+                                                            algoritem preračuna optimalne uteži in 
+                                                            aplikacija mu izriše tri grafe. Prvi graf predstavlja optimalne deleže izbranih sredstev v 
+                                                            porfelju z najmanjšo varianco (tveganjem), drugi graf pa z največjim Sharpejevim razmerjem. 
+                                                            Zadnji graf uporaniku prikaže vrednosti tveganja, donosov in Sharpovega razmerja za vse
+                                                            naključno generirane porfelje. Rdeča toča predstavlja portfelj z najmanjšo varianco,
+                                                            oranžna točka pa portfelj z največjim Sharpejevim razmerjem."))
                                                  ))),
                                         tabPanel("Data description", h2("Data description"),
                                                  mainPanel(fluidRow(
                                                    column(12,
                                                           h3("Finančni indeksi"),
-                                                          p(" 1.	S&P 500: S&P 500 je finančni indeks, ki sledi spremembam na ameriškem delniškem trgu in vključuje 500 največjih ameriških javnih podjetij glede na njihovo tržno kapitalizacijo. Indeks je široko spremljan kazalnik za ocenjevanje uspešnosti ameriškega trga in se uporablja kot referenca za številne naložbene strategije."),
-            p("2.	Nasdaq: Nasdaq je finančni indeks, ki se osredotoča na tehnološka in rastna podjetja na ameriškem trgu. Indeks vključuje več kot 3000 podjetij, med njimi pa so številna znana tehnološka podjetja, kot so Apple, Microsoft, Amazon in Facebook. Nasdaq je znan po svoji visoki volatilnosti in se šteje za ključni indeks za ocenjevanje uspešnosti tehnološkega sektorja."),
-            p("3.	Dow Jones: Dow Jones je najstarejši finančni indeks na svetu in se uporablja za sledenje uspešnosti 30 največjih ameriških podjetij. Indeks je znan po svojem visokem vplivu na globalne trge in vključuje podjetja iz različnih sektorjev, kot so finančne storitve, zdravstvo, energija in proizvodnja."),
-            p("4.	DAX: DAX je glavni finančni indeks nemškega trga in sledi uspešnosti 30 največjih nemških podjetij glede na tržno kapitalizacijo. Indeks je znan po svoji vlogi kot ključnem kazalniku za ocenjevanje nemškega gospodarstva, saj vključuje podjetja iz različnih sektorjev, kot so avtomobilska industrija, kemična industrija, bančništvo in tehnologija."),
-            p("5.	STOXX Europe 50: STOXX Europe 50 je finančni indeks, ki sledi uspešnosti 50 največjih podjetij v 18 evropskih državah. Indeks vključuje podjetja iz različnih sektorjev, kot so finance, farmacija, telekomunikacije, nafta in plin ter se uporablja kot ključni kazalnik za ocenjevanje uspešnosti evropskega trga."),
+            p("Finančni indeksi predstavljajo agregatne vrednosti skupine delnic, obveznic ali drugih finančnih instrumentov, ki služijo
+              kot referenčna točka za merjenje uspeha naložb in učinkovitosti trgov."),
+            strong("S&P 500"),
+            p("S&P 500 je finančni indeks, ki sledi spremembam na ameriškem delniškem trgu in vključuje 500 največjih ameriških javnih
+              podjetij glede na njihovo tržno kapitalizacijo. Indeks je eden najpomembnejših kazalnikov za ocenjevanje uspešnosti ameriškega
+              trga in se uporablja kot referenca za številne naložbene strategije."),
+            strong("NASDAQ"),
+            p("NASDAQ je finančni indeks, ki se osredotoča na tehnološka in informacijska podjetja na ameriškem trgu. Indeks vključuje več kot
+              3000 podjetij, med njimi pa so številna znana tehnološka podjetja, kot so Apple, Microsoft, Amazon in Facebook. NASDAQ je
+              znan po visoki volatilnosti in se uporablja kot ključni indeks za ocenjevanje uspešnosti tehnološkega sektorja."),
+            strong("Dow Jones"),
+            p("Dow Jones je najstarejši finančni indeks na svetu in se uporablja za sledenje uspešnosti 30 največjih ameriških podjetij.
+              Indeks je znan po svojem visokem vplivu na globalne trge in vključuje podjetja iz različnih sektorjev, kot so finančne
+              storitve, zdravstvo, energija in proizvodnja."),
+            strong("DAX"),
+            p("DAX je glavni finančni indeks nemškega trga in sledi uspešnosti 30 največjih nemških podjetij glede na tržno
+              kapitalizacijo. Indeks se najpogosteje uporablja za ocenjevanje stanja nemškega gospodarstva, saj vključuje
+              podjetja iz različnih sektorjev, kot so avtomobilska industrija, kemična industrija, bančništvo in tehnologija."),
+            strong("STOXX Europe 50"),
+            p("STOXX Europe 50 je finančni indeks, ki sledi uspešnosti 50 največjih podjetij v 18 evropskih državah. Indeks vključuje
+              podjetja iz različnih sektorjev, kot so finance, farmacija, telekomunikacije, nafta in plin ter se uporablja kot ključni
+              kazalnik za ocenjevanje uspešnosti evropskega trga."),
                                                           h3("Surovine"),
-            p(" 1.Srebro: Srebro je plemenita kovina, ki se uporablja v različnih industrijah, vključno z elektroniko, fotografsko industrijo, medicino in nakitom. Srebro je tudi priljubljena surovina za trgovanje na finančnih trgih, saj se njegova cena običajno giblje v skladu z gospodarskimi in geopolitičnimi dejavniki ter povpraševanjem po industrijski uporabi."),
-            p("2.	Zlato: Zlato je plemenita kovina, ki ima bogato zgodovino kot sredstvo za shranjevanje vrednosti. Zlato se uporablja tudi v nakitu, elektroniki in nekaterih industrijskih aplikacijah. Kot surovina za trgovanje je zlato priljubljena izbira med vlagatelji, saj se pogosto uporablja kot zaščita pred inflacijo, nestabilnostjo na finančnih trgih in valutnimi nihajnostmi."),
-            p("3.	Pšenica: Pšenica je ena najpomembnejših žitnih pridelkov in se uporablja predvsem v prehrambni industriji za proizvodnjo kruha, testenin in drugih žitnih izdelkov. Cena pšenice na finančnih trgih je običajno odvisna od različnih dejavnikov, kot so ponudba in povpraševanje na svetovnem trgu, podnebni pogoji, politični dogodki in gibanja valut."),
-            p("4.	Zemeljski plin: Zemeljski plin je fosilno gorivo, ki se uporablja predvsem za ogrevanje, proizvodnjo električne energije in kot surovina v kemični industriji. Cene zemeljskega plina na finančnih trgih so običajno odvisne od faktorjev, kot so ponudba in povpraševanje, podnebni pogoji, energetska politika ter geopolitične napetosti."),
-            p("5.	Olje: Nafta je ena najpomembnejših surovin v svetovnem gospodarstvu, saj se uporablja za proizvodnjo energije, goriva za prevozna sredstva in različne kemične izdelke. Cene nafte na finančnih trgih so odvisne od številnih dejavnikov, kot so globalna ponudba in povpraševanje, geopolitične napetosti, politika proizvajalcev nafte ter gospodarske in okoljske razmere."),
+            p("Surovine predstavljajo ključen del vlagateljskega portfelja, saj omogočajo razpršitev tveganja in zagotavljajo zaščito pred inflacijo."),
+            strong("Nafta"),
+            p("Nafta je ena najpomembnejših surovin v svetovnem gospodarstvu, saj se uporablja za proizvodnjo energije, goriva za
+              prevozna sredstva in različne kemične izdelke. Cene nafte na finančnih trgih so odvisne od številnih dejavnikov, kot so 
+              globalna ponudba in povpraševanje, geopolitične napetosti, politika proizvajalcev nafte ter gospodarske in okoljske razmere."),
+            strong("Zlato"),
+            p("Zlato je plemenita kovina, ki ima bogato zgodovino kot sredstvo za shranjevanje vrednosti. Zlato se uporablja tudi v nakitu, 
+              elektroniki in nekaterih industrijskih aplikacijah. Kot surovina za trgovanje je zlato priljubljena izbira med vlagatelji, saj se 
+              pogosto uporablja kot zaščita pred inflacijo, nestabilnostjo na finančnih trgih in nihanji vrednosti valut."),
+            strong("Srebro"),
+            p("Srebro je plemenita kovina, ki se uporablja v različnih industrijah, vključno z elektroniko, fotografsko industrijo, medicino in
+              nakitom. Srebro je tudi priljubljena surovina za trgovanje na finančnih trgih, saj se njegova cena običajno giblje v skladu z
+              gospodarskimi in geopolitičnimi dejavniki ter povpraševanjem po industrijski uporabi."),
+            strong("Zemeljski plin"),
+            p("Zemeljski plin je fosilno gorivo, ki se uporablja predvsem za ogrevanje, proizvodnjo električne energije in kot surovina v kemični
+              industriji. Cene zemeljskega plina na finančnih trgih so običajno odvisne od faktorjev, kot so ponudba in povpraševanje, podnebni
+              pogoji, energetska politika ter geopolitične napetosti."),
+            strong("Pšenica"),
+            p("Pšenica je ena najpomembnejših žitnih pridelkov in se uporablja predvsem v prehrambni industriji za proizvodnjo kruha, testenin in
+              drugih žitnih izdelkov. Cena pšenice na finančnih trgih je običajno odvisna od različnih dejavnikov, kot so ponudba in povpraševanje
+              na svetovnem trgu, podnebni pogoji, politični dogodki in gibanje vrednosti valut."),
+           
                                                           h3("Obveznice"),
-            p(" Ameriške zakladniške obveznice, pogosto imenovane tudi \"treasury bonds\" ali \"T-bonds\", so dolgoročne obveznice, ki jih izdaja ameriška vlada za financiranje svojega dolga. Obstajajo različni ročnosti T-obveznic, vključno s 5, 10 in 30 letnimi obveznicami."),
-            p("•	5-letne T-obveznice: Gre za obveznice z ročnostjo 5 let, kar pomeni, da se zapadejo in izplačajo po 5 letih od datuma izdaje. Te obveznice običajno ponujajo nižji donos v primerjavi z daljšimi ročnostmi, vendar so manj občutljive na spremembe obrestnih mer."),
-            p("•	10-letne T-obveznice: To so obveznice z ročnostjo 10 let, ki se zapadejo in izplačajo po 10 letih od datuma izdaje. 10-letne T-obveznice so priljubljene med vlagatelji, saj ponujajo zmerno donosnost in so običajno manj tvegane od krajših ročnosti."),
-            p("•	30-letne T-obveznice: Gre za obveznice z najdaljšo ročnostjo med ameriškimi zakladniškimi obveznicami, saj se zapadejo in izplačajo po 30 letih od datuma izdaje. 30-letne T-obveznice običajno ponujajo najvišji donos, vendar so tudi bolj občutljive na spremembe obrestnih mer in tveganja inflacije."),
-            p("Ameriške zakladniške obveznice so običajno veljajo za relativno varne naložbe, saj so podprte s kreditno boniteto ameriške vlade. Donosnost T-obveznic je odvisna od številnih dejavnikov, vključno z obrestnimi merami, inflacijo, gospodarskimi in geopolitičnimi razmerami ter povpraševanjem na trgu."),
+            p(" Ameriške zakladniške obveznice, pogosto imenovane tudi \"treasury bonds\" ali \"T-bonds\", so dolgoročne obveznice, ki jih
+              izdaja ameriška vlada za financiranje svojega dolga. Obstajajo različni ročnosti T-obveznic, vključno s 5, 10 in 30 letnimi obveznicami."),
+            strong("• 5-letne T-obveznice"),
+            p("Gre za obveznice z ročnostjo 5 let, kar pomeni, da zapadejo in se izplačajo po 5 letih od datuma izdaje. 
+              Te obveznice običajno ponujajo nižji donos v primerjavi z daljšimi ročnostmi, vendar so manj občutljive na spremembe obrestnih mer."),
+            strong("•	10-letne T-obveznice"),
+            p("To so obveznice z ročnostjo 10 let, ki zapadejo in se izplačajo po 10 letih od datuma izdaje. 10-letne T-obveznice so priljubljene 
+              med vlagatelji, saj ponujajo zmerno donosnost in so običajno manj tvegane od krajših ročnosti."),
+            strong("•	30-letne T-obveznice"),
+            p("Gre za obveznice z najdaljšo ročnostjo med ameriškimi zakladniškimi obveznicami, saj zapadejo in se izplačajo po 30 letih
+              od datuma izdaje. 30-letne T-obveznice običajno ponujajo najvišji donos, vendar so tudi bolj občutljive na spremembe
+              obrestnih mer in tveganja inflacije."),
+            p("Ameriške zakladniške obveznice običajno veljajo za relativno varne naložbe, saj so podprte s kreditno boniteto ameriške
+              vlade. Donosnost T-obveznic je odvisna od številnih dejavnikov, vključno z obrestnimi merami, inflacijo, 
+              gospodarskimi in geopolitičnimi razmerami ter povpraševanjem na trgu."),
                                                           h3("Kriptovalute"),
-            p("Kriptovalute so digitalna sredstva, ki uporabljajo kriptografske tehnike za zagotavljanje varnosti, transparentnosti in decentralizacije. Kriptovalute med katerimi lahko uporabnik izbira so:"),
-            p("•	Bitcoin: Je najstarejša in najbolj znana kriptovaluta, uvedena leta 2009. Temelji na tehnologiji blockchain in se uporablja kot digitalni denar za izvajanje transakcij in shranjevanje vrednosti. Bitcoin je znan po svoji omejeni ponudbi, saj je skupno število bitcoinov, ki jih lahko obstajajo, omejeno na 21 milijonov."),
-            p("•	Ethereum: Je platforma za decentralizirane aplikacije (DApps) in kriptovaluta, ki je bila uvedena leta 2015. Ethereum omogoča izvajanje pametnih pogodb, ki so samodejno izvršljive kode, kar omogoča razvoj in izvajanje različnih blockchain aplikacij."),
-            p("•	XRP: Je kriptovaluta, ki jo uporablja Ripple, podjetje za plačilne protokole. XRP se uporablja za olajšanje mednarodnih plačil in prenosov v realnem času. Med drugim je znan po svoji hitrosti in nizkih stroških transakcij."),
-            p("•	Solana: Je odprtokodna blockchain platforma, ki omogoča hitre transakcije in visoko zmogljivost. Solana se uporablja za razvoj decentraliziranih aplikacij (DApps), NFT-jev (nepremičninskih žetonov) in drugih kripto projektov."),
-            p("•	Dogecoin: Je kriptovaluta, ki je bila prvotno ustvarjena kot šala, vendar je pridobila veliko priljubljenost. Dogecoin temelji na odprtokodni tehnologiji Litecoin in je znan po svoji prepoznavni podobi Shibe Inu psa. Uporablja se za transakcije in shranjevanje vrednosti, vendar nima določenega maksimalnega števila kovancev, kar ga ločuje od drugih kriptovalut."),
-            p("Kriptovalute so znane po svoji visoki volatilnosti, saj so cene na trgih kriptovalut znane po hitrih spremembah. Vlaganje v kriptovalute je visoko tvegano in zahteva previdnost ter temeljito raziskavo preden se odločite za vlaganje vanje."),
+            p("Kriptovalute so digitalna sredstva, ki uporabljajo kriptografske tehnike za zagotavljanje varnosti, transparentnosti in
+              decentralizacije."),
+            strong("Bitcoin"),
+            p("Bitcoin je najstarejša in najbolj znana kriptovaluta, uvedena leta 2009. Temelji na tehnologiji blockchain in se 
+              uporablja kot digitalni denar za izvajanje transakcij in shranjevanje vrednosti. Bitcoin je znan po svoji omejeni ponudbi,
+              saj je skupno število bitcoinov, ki lahko obstajajo, omejeno na 21 milijonov."),
+            strong("Ethereum"),
+            p("Ethereum je platforma za decentralizirane aplikacije (DApps) in kriptovaluta, ki je bila uvedena leta 2015. Ethereum 
+              omogoča izvajanje pametnih pogodb, torej izvajanje avtomatiziranih transakcij brez posrednikov, kar omogoča razvoj
+              in izvajanje različnih blockchain aplikacij."),
+            strong("XRP"),
+            p("XRP je kriptovaluta, ki jo uporablja Ripple, podjetje za plačilne protokole. XRP se uporablja za olajšanje mednarodnih 
+              plačil in prenosov v realnem času. Med drugim je znan po svoji hitrosti in nizkih stroških transakcij."),
+            strong("Solana"),
+            p("Solana je odprtokodna blockchain platforma, ki omogoča hitre transakcije in visoko zmogljivost. Solana se uporablja za
+              razvoj decentraliziranih aplikacij (DApps), NFT-jev (nepremičninskih žetonov) in drugih kripto projektov."),
+            strong("Dogecoin"),
+            p("Dogecoin je kriptovaluta, ki je bila prvotno ustvarjena kot šala, vendar je pridobila veliko priljubljenost. Dogecoin 
+              temelji na odprtokodni tehnologiji Litecoin in je znan po svoji prepoznavni podobi Shibe Inu psa. 
+              Uporablja se za transakcije in shranjevanje vrednosti, vendar nima določenega maksimalnega števila kovancev, 
+              kar ga ločuje od drugih kriptovalut."),
+            p("Kriptovalute so znane po svoji visoki volatilnosti, cene na trgih kriptovalut so znane po hitrih spremembah.
+              Vlaganje v kriptovalute je visoko tvegano in zahteva previdnost ter temeljito raziskavo pred odločitvijo za vlaganje."),
                                                           h3("Finančni indikatorji"),
-                                                         p("Indikatorji so orodja, ki se uporabljajo v tehnični analizi finančnih trgov za analizo cenovnih gibanj in identifikacijo vzorcev ter trendov. Nekateri izmed najpogosteje uporabljenih indikatorjev vključujejo:"),
-            p("1.	Povprečje premikov (Moving Average): Je enostaven indikator, ki prikazuje povprečje cenovnih vrednosti za določeno obdobje. Uporablja se za identifikacijo trendov in prepoznavanje presečišč med povprečjem in trenutno ceno kot morebitne signale za nakup ali prodajo."),
-            p("2.	RSI (Relative Strength Index) je tehnični indikator, ki se uporablja za merjenje hitrosti in obsega sprememb cenovnih gibanj. RSI se giblje med 0 in 100 ter lahko služi kot orodje za identifikacijo prekomerne kupljenosti ali prodanosti vrednostnega papirja. Konvencionalno se šteje, da je RSI nad 70 kot prekomerno kupljen, medtem ko se RSI pod 30 šteje za prekomerno prodan."),
-            p("Ko RSI preseže 70, se lahko šteje, da je vrednostni papir prekomerno kupljen, kar lahko nakazuje na možnost možnega trenda obrata navzdol. To bi lahko bil signal za morebitno prodajo, saj se pričakuje, da bo cena vrednostnega papirja padla."),
-            p("Na drugi strani pa se RSI pod 30 šteje za prekomerno prodan, kar lahko nakazuje na možnost možnega trenda obrata navzgor. To bi lahko bil signal za morebitno nakupno priložnost, saj se pričakuje, da bo cena vrednostnega papirja zrasla."),
-            p("3.	Konvergenca in divergenca povprečij (Moving Average Convergence Divergence - MACD): Je trendni indikator, ki uporablja razlike med dvema eksponentno ponderiranima povprečjema za identifikacijo spreminjajočega se trenda. MACD prikazuje presečišče med signali in histogramom, kar lahko služi kot signal za nakup ali prodajo."),
-            p("Ti indikatorji so le nekaj primerov iz širokega nabora razpoložljivih tehničnih indikatorjev, ki se uporabljajo za analizo finančnih trgov. Pomembno je razumeti, da indikatorji niso zagotovilo za uspešno trgovanje, ampak so le orodja za pomoč pri sprejemanju odločitev na podlagi analize preteklih cenovnih gibanj. Prav tako je ključno upoštevati druge dejavnike, kot so temeljna analiza, upravljanje tveganj in lastniška strategija, pri sprejemanju investicijskih odločitev.")
+            p("Indikatorji so orodja, ki se uporabljajo v tehnični analizi finančnih trgov za analizo cenovnih gibanj in 
+              identifikacijo vzorcev ter trendov. Uporabnik lahko izbira med naslednjimi indikatorji:"),
+            strong("Moving average"),
+            p("Drseče povprečje je tehnični indikator, ki se uporablja za analizo časovnih vrst podatkov, zlasti cenovnih podatkov.
+            Gre za enostavno matematično orodje, ki izračuna povprečje cen v določenem časovnem obdobju, s čimer zgladi cene in
+            omogoča boljše razumevanje trendov in vzorcev na trgu. Drseča povprečja se pogosto uporabljajo v finančni analizi in 
+            trgovanju ter so lahko različnih vrst, kot so preprosto drseče povprečje (SMA), eksponentno drseče povprečje (EMA) ali
+            tehtano drseče povprečje (WMA). V naši aplikaciji je na voljo le SMA."),
+            p("Drseča povprečja lahko uporabimo za identifikacijo trendov, kjer naraščajoče drseče povprečje nakazuje naraščajoč trend,
+              medtem ko padajoče drseče povprečje nakazuje padajoč trend. Prav tako se uporabljajo za prepoznavanje podpore in upora,
+              saj se tržne cene pogosto gibljejo okoli drsečih povprečij."),
+            strong("RSI"),
+            p("RSI je tehnični indikator, ki se uporablja za oceno zagona cen ter za prepoznavanje prekupljenih in preprodanih sredstev
+            na trgu. RSI je oscilator, ki meri hitrost in spremembe cenovnih gibanj, z vrednostmi, ki se gibljejo med 0 in 100. Izračuna 
+            se na podlagi povprečnega dobička in povprečne izgube v določenem časovnem obdobju (običajno 14 dni). Običajno se 
+            uporabljajo pragovi 30 in 70 za identifikacijo preprodanih in prekupljenih sredstev. Ko RSI pade pod 30 pomeni, da je trg
+            preprodan, kar lahko nakazuje na potencialni obrat navzgor. Nasprotno pa, ko RSI preseže 70 pomeni, da je trg prenasičen, kar
+            lahko nakazuje na potencialni obrat navzdol."),
+            p("Poleg prekupljenih in preprodanih signalov lahko RSI uporabimo tudi za iskanje divergenc med cenovnimi gibanji in
+              indikatorjem, kar lahko nakazuje na potencialne preobrate v trendu. RSI se pogosto uporablja v kombinaciji z drugimi
+              tehničnimi indikatorji za boljše razumevanje tržnih razmer in izboljšanje natančnosti signalov."),
+            strong("MACD"),
+            p("Konvergenca in divergenca povprečij (Moving Average Convergence Divergence) je priljubljen tehnični indikator, ki ga
+            uporabljajo trgovci in vlagatelji za prepoznavanje trendov in potencialnih preobratov na finančnih trgih. Deluje z 
+            analizo razlike med dvema drsečima povprečjema cen - običajno 12-dnevnim eksponentnim drsečim povprečjem (EMA) in 
+            26-dnevnim EMA. MACD se izračuna tako, da se od 12-dnevnega EMA odšteje 26-dnevni EMA. Rezultat predstavlja MACD linijo, 
+            ki se uporablja za prepoznavanje sprememb  v trendu in zagonu. Poleg MACD linije se pogosto izračuna tudi 9-dnevni EMA MACD
+            linije, ki se imenuje signalna linija. Signalna linija se uporablja za generiranje prodajnih in nakupnih signalov."),
+            p("Trgovci in vlagatelji uporabljajo MACD za prepoznavanje križanj med MACD in signalno linijo. Kadar MACD linija prečka 
+            signalno linijo navzgor, se to šteje za nakupni signal, ki kaže na povečanje zagona in možen začetek ali nadaljevanj
+            naraščajočega trenda. Nasprotno pa velja, kadar MACD linija prečka signalno linijo navzdol, kar se šteje za prodajni signal,
+            ki nakazuje na oslabitev zagona in možen začetek ali nadaljevanje padajočega trenda."),
+            p("Navedenih je le nekaj indikatorjev iz širokega nabora razpoložljivih tehničnih indikatorjev, ki se uporabljajo za 
+              analizo finančnih trgov. Pomembno je razumeti, da indikatorji niso zagotovilo za uspešno trgovanje, ampak so 
+              le orodja za pomoč pri sprejemanju odločitev na podlagi analize preteklih cenovnih gibanj. Prav tako je pri sprejemanju
+              investicijskih odločitev ključno upoštevati druge dejavnike, kot so temeljna analiza, upravljanje tveganj 
+              in lastniška strategija.")
                                                  )))),
-                                        tabPanel("Optimisation model description",
-                                                 h2("Optimisation model description"),
+                                        tabPanel("Optimization model description",
+                                                 h2("Optimization model description"),
                                                  mainPanel(fluidRow(
                                                    column(12,
-                                                          p("Optimizacija portfelja sledi naslednjim korakom:"),
-                                                          p("1.	Na začetku funkcija določi seznam finančnih instrumentov, za katere želi optimizirati portfelj. Ta seznam je podan s pomočjo simbolov, ki predstavljajo posamezne instrumente na finančnih trgih (npr. \"^GSPC\" za S&P 500 indeks ali \"GC=F\" za zlato)."),
-                                                        
-                                                          p("2.	Nato funkcija pridobi zgodovinske podatke za te instrumente, kot so cene delnic, indeksov ali surovin, za določeno obdobje, ki je privzeto zadnjih 20 let. To stori s pomočjo funkcije tq_get(), ki uporablja knjižnico tidyquant."),
-                                                        
-                                                          p("3.	Naslednji korak je izračun dnevnih donosov za vsak instrument na podlagi pridobljenih zgodovinskih podatkov. Uporablja se funkcija tq_transmute(), ki uporablja knjižnico tidyquant, za izračun logaritemskih donosov (returnov) na dnevni ravni."),
-                                                      
-                                                          p("4.	Funkcija nato izračuna povprečne donose za vsak instrument ter kovariančno matriko donosov za vse instrumente. Povprečni donosi se izračunajo s funkcijo colMeans(), medtem ko se kovariančna matrika izračuna s funkcijo cov()."),
-                                                          p("5.	Po izračunu povprečnih donosov in kovariančne matrike, funkcija začne optimizacijo portfelja z generiranjem num_port naključnih portfeljev. Število naključnih portfeljev je podano kot argument funkcije."),
-                                                          p("6.	Za vsak naključno generiran portfelj, funkcija izračuna njegov letni donos, tveganje (standardni odklon) ter Sharpejevo razmerje. Donos, tveganje in Sharpejevo razmerje se izračunajo za vsak portfelj na podlagi naključno določenih uteži za vsak instrument v portfelju."),
-                                                          p("7.	Funkcija nato shrani rezultate v tabelo, ki vsebuje povprečne donose, tveganja in Sharpejeva razmerja za vse naključno generirane portfelje."),
-                                                          p("8.	Prav tako funkcija izriše grafe, ki prikazujejo uteži za portfelj z najmanjšo varianco in najvišjim Sharpejevim razmerjem. Grafi so narisani s pomočjo knjižnice ggplot2."),
-                                                          p("9.	Na koncu funkcija vrne rezultate, kot so povprečni donosi, tveganja in Sharpejeva razmerja za vse naključno generirane portfelje, ter utež")
+            p("Optimizacija portfelja sledi naslednjim korakom:"),
+            p("1.	Najprej izberemo seznam finančnih sredstev, za katere želimo optimizirati portfelj. Vnesemo tudi število naključnih
+              portfeljev, ki naj jih algoritem zgenerira in vrednost netvegane obrestne mere."),
+            p("2.	Algoritem nato iz interneta pridobi zgodovinske dnevne cene za vsa izbrana sredstva (indeksi, surovine, obveznice in kriptovalute)
+               za zadnjih 20 let. Če sredstvo obstaja manj kot 20 let (recimo kriptovalute), potem pridobi vse zgodovinske cene od 
+              takrat ko je nastalo."),
+            p("3.	Sledi izračun dnevnih donosov za vsako sredstvo na podlagi pridobljenih zgodovinskih podatkov. Izračunajo se zvezni, logaritemski
+              donosi na dnevni ravni."),
+            p("4.	Model nato za vsako sredstvo izračuna povprečne donose ter kovariančno matriko donosov."),
+            p("5.	V tem koraku se začne optimizacija portfelja. Algoritem generira vneseno število naključnih portfeljev. To pomeni, da za
+              vsak portfelj naključno generira vrednosti uteži (med 0 in 1, seštejejo se v 1). Za vsak naključno generiran portfelj, algoritem
+              izračuna njegov letni donos, tveganje (standardni odklon) ter Sharpejevo razmerje na podlagi naključno določenih uteži."),
+            p("6.	Na koncu algoritem poišče portfelja z najmanjšo varianco in najvišjim Sharpejevim razmerjem, ter izriše grafa uteži. Posebej 
+              izriše tudi graf rezultatov s povprečni donosi, tveganjem in Sharpejevim razmerjem za vse naključno generirane portfelje."),
                                                  )))
             
                              )),
-                             navbarMenu("Financial instruments analysis", icon=icon("chart-line"),
+                             navbarMenu("Financial assets analysis", icon=icon("chart-line"),
                                         
     ################################# Indices #############################################################                                    
                                         
@@ -387,7 +502,7 @@ shinyUI(fluidPage(#theme = shinytheme("flatly"),
                                                  
                                                  
                                                  plotOutput("plotCryptocurrencies"))),
-                              navbarMenu("Portfolio optimisation", icon = icon ("money-bill-trend-up"),
+                              navbarMenu("Portfolio optimization", icon = icon ("money-bill-trend-up"),
                                         tabPanel("Optimal portfolio", h2("Optimal portfolio"),
                                                  sidebarPanel(class = "sidebar",
                                                    numericInput("num_port", 

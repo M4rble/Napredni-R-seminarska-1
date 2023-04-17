@@ -1,0 +1,13 @@
+name: NV-Investments
+title: NV-Investments
+username:
+account: m4rble
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8876568
+bundleId: 7101107
+url: https://m4rble.shinyapps.io/NV-Investments/
+when: 1681760154.49138
+lastSyncTime: 1681760154.49139
+asMultiple: FALSE
+asStatic: FALSE
