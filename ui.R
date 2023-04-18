@@ -246,7 +246,7 @@ shinyUI(fluidPage(#theme = shinytheme("flatly"),
                                                                     inline = TRUE),
                                                  conditionalPanel(
                                                    condition = "input.indikatorji.indexOf('Moving average') > -1",
-                                                   radioButtons("ma_period", label = "Choose moving average period:",
+                                                   checkboxGroupInput("ma_period", label = "Choose moving average periods:",
                                                                 choices = c("10 units",
                                                                             "20 units",
                                                                             "50 units",
@@ -276,10 +276,9 @@ shinyUI(fluidPage(#theme = shinytheme("flatly"),
                                                  ),
                                                  
                                                  mainPanel(
-                                                   plotOutput("plotIndex"))),
-                                                 #plotlyOutput("plotIndex1"),
-                                                 #plotlyOutput("plotIndex2"),
-                                                 #plotlyOutput("plotIndex3"))),
+                                                 plotlyOutput("plotIndex1"),
+                                                 plotlyOutput("plotIndex2"),
+                                                 plotlyOutput("plotIndex3"))),
                                         
     #############################Commodities######################################################                                    
                                         
@@ -324,7 +323,7 @@ shinyUI(fluidPage(#theme = shinytheme("flatly"),
                                                                       inline = TRUE),
                                                    conditionalPanel(
                                                      condition = "input.indikatorji_c.indexOf('Moving average') > -1",
-                                                     radioButtons("ma_period_c", label = "Choose moving average period:",
+                                                     checkboxGroupInput("ma_period_c", label = "Choose moving average periods:",
                                                                   choices = c("10 units",
                                                                               "20 units",
                                                                               "50 units",
@@ -353,8 +352,10 @@ shinyUI(fluidPage(#theme = shinytheme("flatly"),
                                                    )
                                                  ),
                                                  
-                                                 
-                                                 plotOutput("plotCommodities")),
+                                                 mainPanel(
+                                                   plotlyOutput("plotCommodities1"),
+                                                   plotlyOutput("plotCommodities2"),
+                                                   plotlyOutput("plotCommodities3"))),
     
     ############################## Bonds ################################################################
     
@@ -397,7 +398,7 @@ shinyUI(fluidPage(#theme = shinytheme("flatly"),
                                                                       inline = TRUE),
                                                    conditionalPanel(
                                                      condition = "input.indikatorji_b.indexOf('Moving average') > -1",
-                                                     radioButtons("ma_period_b", label = "Choose moving average period:",
+                                                     checkboxGroupInput("ma_period_b", label = "Choose moving average periods:",
                                                                   choices = c("10 units",
                                                                               "20 units",
                                                                               "50 units",
@@ -427,7 +428,10 @@ shinyUI(fluidPage(#theme = shinytheme("flatly"),
                                                  ),
                                                  
                                                  
-                                                 plotOutput("plotBonds")),
+                                                 mainPanel(
+                                                   plotlyOutput("plotBonds1"),
+                                                   plotlyOutput("plotBonds2"),
+                                                   plotlyOutput("plotBonds3"))),
     
     ############################## Cryptocurrencies ################################################################
                                           tabPanel("Cryptocurrencies", h2("Cryptocurrencies"),
@@ -471,7 +475,7 @@ shinyUI(fluidPage(#theme = shinytheme("flatly"),
                                                                       inline = TRUE),
                                                    conditionalPanel(
                                                      condition = "input.indikatorji_crypto.indexOf('Moving average') > -1",
-                                                     radioButtons("ma_period_crypto", label = "Choose moving average period:",
+                                                     checkboxGroupInput("ma_period_crypto", label = "Choose moving average periods:",
                                                                   choices = c("10 units",
                                                                               "20 units",
                                                                               "50 units",
@@ -500,8 +504,13 @@ shinyUI(fluidPage(#theme = shinytheme("flatly"),
                                                    )
                                                  ),
                                                  
-                                                 
-                                                 plotOutput("plotCryptocurrencies"))),
+                                                 mainPanel(
+                                                   plotlyOutput("plotCryptocurrencies1"),
+                                                   plotlyOutput("plotCryptocurrencies2"),
+                                                   plotlyOutput("plotCryptocurrencies3")))),
+    
+####################################PORTFOLIO OPTIMIZATION#####################################################################
+    
                               navbarMenu("Portfolio optimization", icon = icon ("money-bill-trend-up"),
                                         tabPanel("Optimal portfolio", h2("Optimal portfolio"),
                                                  sidebarPanel(class = "sidebar",
@@ -545,21 +554,3 @@ shinyUI(fluidPage(#theme = shinytheme("flatly"),
 )
 )
 )
-
-
-
-#sidebarLayout(
-#  sidebarPanel(
-#    numericInput("mean", "Mean", min = -2, max = 2, value = 0, step = 0.1),
-#    sliderInput("sd", "Standard deviation", min = 0, max = 2, value = 1, step = 0.1,
-#                animate=TRUE),
-#    checkboxInput("plotMean", "Plot vertical line at mean?", value = FALSE),
-#    hr(),
-#    selectInput("curveColor", "Choose color of curve:",
-#                choices = c("black", "red", "blue"), selected = "black"),
-#    hr(),
-#    textInput("plotTitle", "Specify title plot", value="A plot"),
-#    textInput("verticalLabel", "Specify vertical label", value="probability density"),
-#    hr(),
-#    submitButton("Update View", icon("refresh"))
-#  ),

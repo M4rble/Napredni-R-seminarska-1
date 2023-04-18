@@ -18,8 +18,6 @@ library(shinyWidgets)
 
 
 function(input, output,session) {
-
-  # iz dnevnih v različne podatke
   
           get_period_data <- function(ticker, start_date, end_date, period) {
             # dobimo zgodovinske cene iz spleta
@@ -40,7 +38,7 @@ function(input, output,session) {
           }
           
           generate_plot <- function(index, price_type, frequency, datum, 
-                                    indikatorji, ma_period, rsi_period,
+                                    indikatorji, ma_periods = c(), rsi_period,
                                     nFast, nSlow, nSig) {
             ticker <- switch(index,
                              "S&P500" = "^GSPC",
@@ -110,24 +108,39 @@ function(input, output,session) {
                                           colour = "#E0FFFF")
                 )
             
-            if ("Moving average" %in% indikatorji) {
+            if ("Moving average" %in% indikatorji && length(ma_periods) > 0) {
               
-              ma_period <- switch(ma_period,
+              ma_colors <- c("10 units" = "green",
+                             "20 units" = "maroon1",
+                             "50 units" = "brown",
+                             "100 units" = "slateblue",
+                             "200 units" = "orange")
+              
+              ma_data_list <- list()
+              for (ma_period in ma_periods){
+                ma_period_num <- switch(ma_period,
                                   "10 units" = 10,
                                   "20 units" = 20,
                                   "50 units" = 50,
                                   "100 units" = 100,
                                   "200 units" = 200)
-              
-              validate(
-                need(nrow(data) > ma_period + 1,
+                
+                validate(
+                  need(nrow(data) > ma_period_num + 1,
                      "Cannot compute. Choose a shorter period for calculation of Moving average, increase data frequency or expand the observed date range.")
-              )
+                )
+                ma <- SMA(price, n = ma_period_num)
+                ma_data <- data.frame(date = data$date, ma = ma, period = ma_period)
+                ma_data_list[[ma_period]] <- ma_data
+              }
               
-              ma <- SMA(price, n = ma_period)
-              indeksi <- indeksi + geom_line(aes(x = date, y = ma, color="ma_period")) +
-                scale_color_manual(name = "Moving average", values = c(ma_period = "green"),
-                                   labels = c(ma_period))
+              ma_data_combined <- do.call(rbind, ma_data_list)
+              ma_data_combined$period <- factor(ma_data_combined$period, levels = c("10 units", "20 units", 
+                                                                                   "50 units", "100 units", 
+                                                                                   "200 units"))
+              indeksi <- indeksi + geom_line(data = ma_data_combined, aes(x = date, y = ma, color = period))
+              
+              indeksi <- indeksi + scale_color_manual(values = ma_colors, name = "Moving Averages")
             }
             
             
@@ -154,11 +167,10 @@ function(input, output,session) {
               
               rsi <- RSI(price, n = rsi_period)
               rsi_data <- data.frame(date = data$date, rsi = rsi)
-              rsi_plot <- rsi_plot + geom_line(data=rsi_data, aes(x = date, y = rsi, color = "rsi_period")) +
+              rsi_plot <- rsi_plot + geom_line(data=rsi_data, aes(x = date, y = rsi, color = factor(rsi_period))) +
                 xlab("Date") + geom_hline(aes(yintercept=70)) + 
                 geom_hline(aes(yintercept=30)) + ylab("RSI") + 
-                scale_color_manual(name = "RSI", values = c(rsi_period = "red"),
-                                   labels = c(rsi_period))
+                scale_color_manual(name = "RSI", values = c(rsi_period = "red"))
             }
             
             macd_plot <- ggplot() + theme(
@@ -195,56 +207,78 @@ function(input, output,session) {
                                    labels = c("MACD", "Signal"))
             }
             
-            indeksi <- grid.arrange(indeksi, rsi_plot, macd_plot, nrow = 3, heights = c(3,1,1))
-            return(indeksi)
+
+            id1 <- ggplotly(indeksi, tooltip = c("date", "price", "ma")) 
+            rsi_plot <- ggplotly(rsi_plot, tooltip=c("date", "rsi"))
+            rsi_plot <- rsi_plot %>% style(line = list(color = "red"), traces = c(1))
+            macd_plot <- ggplotly(macd_plot, tooltip=c("date", "signal", "macd"))
             
-            #id1 <- ggplotly(indeksi)
-            
-            #return(list(id1,rsi_plot, macd_plot))
+            return(list(id1,rsi_plot, macd_plot))
           }
-          
-        output$plotIndex <- renderPlot({
+  
+        output$plotIndex1 <- renderPlotly({
           generate_plot(input$index, input$price, input$frequency, input$datum, 
                         input$indikatorji, input$ma_period, input$rsi_period, 
-                        input$nFast, input$nSlow, input$nSig)
-          }, width = 1100, height = 800)
-  
-        #output$plotIndex1 <- renderPlotly({
-        #  generate_plot(input$index, input$price, input$frequency, input$datum, 
-        #                input$indikatorji, input$ma_period, input$rsi_period, 
-        #                input$nFast, input$nSlow, input$nSig)[[1]]
-        #})#, width = 1100, height = 800)
-        #output$plotIndex2 <- renderPlotly({
-        #  generate_plot(input$index, input$price, input$frequency, input$datum, 
-        #                input$indikatorji, input$ma_period, input$rsi_period, 
-        #                input$nFast, input$nSlow, input$nSig)[[2]]
-        #})#, width = 1100, height = 800)
-        #output$plotIndex3 <- renderPlotly({
-        #  generate_plot(input$index, input$price, input$frequency, input$datum, 
-        #                input$indikatorji, input$ma_period, input$rsi_period, 
-        #                input$nFast, input$nSlow, input$nSig)[[3]]
-        #})#, width = 1100, height = 800)
+                        input$nFast, input$nSlow, input$nSig)[[1]]
+        })
+        output$plotIndex2 <- renderPlotly({
+          generate_plot(input$index, input$price, input$frequency, input$datum, 
+                        input$indikatorji, input$ma_period, input$rsi_period, 
+                        input$nFast, input$nSlow, input$nSig)[[2]]
+        })
+        output$plotIndex3 <- renderPlotly({
+          generate_plot(input$index, input$price, input$frequency, input$datum, 
+                        input$indikatorji, input$ma_period, input$rsi_period, 
+                        input$nFast, input$nSlow, input$nSig)[[3]]
+        })
         
-        
-        output$plotCommodities <- renderPlot({
+        output$plotCommodities1 <- renderPlotly({
           generate_plot(input$commodities, input$price_c, input$frequency_c, input$datum_c, 
                         input$indikatorji_c, input$ma_period_c, input$rsi_period_c, 
-                        input$nFast_c, input$nSlow_c, input$nSig_c)
-        }, width = 1100, height = 800)
+                        input$nFast_c, input$nSlow_c, input$nSig_c)[[1]]
+        })
+        output$plotCommodities2 <- renderPlotly({
+          generate_plot(input$commodities, input$price_c, input$frequency_c, input$datum_c, 
+                        input$indikatorji_c, input$ma_period_c, input$rsi_period_c, 
+                        input$nFast_c, input$nSlow_c, input$nSig_c)[[2]]
+        })
+        output$plotCommodities3 <- renderPlotly({
+          generate_plot(input$commodities, input$price_c, input$frequency_c, input$datum_c, 
+                        input$indikatorji_c, input$ma_period_c, input$rsi_period_c, 
+                        input$nFast_c, input$nSlow_c, input$nSig_c)[[3]]
+        })
         
-        output$plotBonds <- renderPlot({
+        output$plotBonds1 <- renderPlotly({
           generate_plot(input$bonds, input$price_b, input$frequency_b, input$datum_b, 
                         input$indikatorji_b, input$ma_period_b, input$rsi_period_b, 
-                        input$nFast_b, input$nSlow_b, input$nSig_b)
-        }, width = 1100, height = 800)
+                        input$nFast_b, input$nSlow_b, input$nSig_b)[[1]]
+        })
+        output$plotBonds2 <- renderPlotly({
+          generate_plot(input$bonds, input$price_b, input$frequency_b, input$datum_b, 
+                        input$indikatorji_b, input$ma_period_b, input$rsi_period_b, 
+                        input$nFast_b, input$nSlow_b, input$nSig_b)[[2]]
+        })
+        output$plotBonds3 <- renderPlotly({
+          generate_plot(input$bonds, input$price_b, input$frequency_b, input$datum_b, 
+                        input$indikatorji_b, input$ma_period_b, input$rsi_period_b, 
+                        input$nFast_b, input$nSlow_b, input$nSig_b)[[3]]
+        })
         
-        output$plotCryptocurrencies <- renderPlot({
+        output$plotCryptocurrencies1 <- renderPlotly({
           generate_plot(input$cryptocurrencies, input$price_crypto, input$frequency_crypto, input$datum_crypto, 
                         input$indikatorji_crypto, input$ma_period_crypto, input$rsi_period_crypto, 
-                        input$nFast_crypto, input$nSlow_crypto, input$nSig_crypto)
-        }, width = 1100, height = 800)
-        
-        
+                        input$nFast_crypto, input$nSlow_crypto, input$nSig_crypto)[[1]]
+        })
+        output$plotCryptocurrencies2 <- renderPlotly({
+          generate_plot(input$cryptocurrencies, input$price_crypto, input$frequency_crypto, input$datum_crypto, 
+                        input$indikatorji_crypto, input$ma_period_crypto, input$rsi_period_crypto, 
+                        input$nFast_crypto, input$nSlow_crypto, input$nSig_crypto)[[2]]
+        })
+        output$plotCryptocurrencies3 <- renderPlotly({
+          generate_plot(input$cryptocurrencies, input$price_crypto, input$frequency_crypto, input$datum_crypto, 
+                        input$indikatorji_crypto, input$ma_period_crypto, input$rsi_period_crypto, 
+                        input$nFast_crypto, input$nSlow_crypto, input$nSig_crypto)[[3]]
+        })
         
         asset_list <- c("S&P500",
                         "NASDAQ",
@@ -278,6 +312,7 @@ function(input, output,session) {
         })
         
         optimal_weights <- function(assets, num_port, rfr){
+          
           asset_tickers <- c("S&P500" = "^GSPC",
                              "NASDAQ" = "^IXIC",
                              "DowJones Index"= "^DJI",
@@ -451,8 +486,6 @@ function(input, output,session) {
                  title = "Portfolio Optimization & Efficient Frontier") +
             geom_point(aes(x = Risk, y = Return), data = min_var, color = "red") +
             geom_point(aes(x = Risk, y = Return), data = max_sr, color = "orange")
-          #+
-            #scale_color_manual(values = c(SharpeRatio_min = "red", SharpeRatio_max = "orange"))
           
           
           fig1 <- ggplotly(p1, tooltip = c("Weights", "Asset"))
@@ -464,13 +497,43 @@ function(input, output,session) {
         
         
         
-        plot_weights <- eventReactive(input$calculate, {
+        plot_weights <- eventReactive(input$calculate, {          
           optimal_weights(input$assets, input$num_port, input$rfr)
         })
         
-        output$optimal_weights1 <- renderPlotly({plot_weights()[[1]]})
-        output$optimal_weights2 <- renderPlotly({plot_weights()[[2]]})
-        output$optimal_weights3 <- renderPlotly({plot_weights()[[3]]})
+        output$optimal_weights1 <- renderPlotly({
+          validate(
+            need(0<= input$rfr & input$rfr <= 10,
+                 "Cannot compute. For risk-free-rate choose a value between 0 and 10 %.")
+          )
+          
+          validate(
+            need(1000<= input$num_port & input$num_port <= 1000000,
+                 "Cannot compute. For number of portfolios to generate choose a number between 1000 and 1000000.")
+          )
+          
+          plot_weights()[[1]]})
+        output$optimal_weights2 <- renderPlotly({
+          validate(
+            need(0<= input$rfr & input$rfr <= 10,"")
+          )
+          
+          validate(
+            need(1000<= input$num_port & input$num_port <= 1000000,"")
+          )
+          
+          plot_weights()[[2]]})
+        
+        output$optimal_weights3 <- renderPlotly({
+          validate(
+            need(0<= input$rfr & input$rfr <= 10,"")
+          )
+          
+          validate(
+            need(1000<= input$num_port & input$num_port <= 1000000,"")
+          )
+          
+          plot_weights()[[3]]})
         
         
 }
